@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JURISAI — Secure. Understand. Verify.</title>
+<meta name="description" content="Cybersecurity-first AI legal intelligence. Secure documents before AI analysis, understand complex legal language, uncover contradictions, and connect clauses to the law behind them.">
+<link rel="icon" href="assets/logo-mark.png">
+<link rel="stylesheet" href="assets/jurisai.css">
+<link rel="stylesheet" href="assets/landing.css">
+</head>
+<body>
+
+<!-- ============================ NAV ============================ -->
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="JURISAI home">
+      <img class="mark" src="assets/logo-mark.png" alt="">
+      <img class="word" src="assets/logo-wordmark.png" alt="JURISAI">
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#why">Product</a>
+      <a href="#understand">Capabilities</a>
+      <a href="#security">Security</a>
+      <a href="#how">How It Works</a>
+      <a href="#law">Research</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="signin" href="signin.html">Sign In</a>
+      <a class="btn btn-primary btn-sm" href="signup.html">Get Started <i data-i="arrow-right" class="arr" data-size="sm"></i></a>
+      <button class="nav-toggle" aria-label="Menu" aria-expanded="false"><i data-i="menu"></i></button>
+    </div>
+  </div>
+  <nav class="mobile-menu" aria-label="Mobile">
+    <a href="#why">Product</a><a href="#understand">Capabilities</a><a href="#security">Security</a><a href="#how">How It Works</a><a href="#law">Research</a><a href="signin.html">Sign In</a>
+  </nav>
+</header>
+
+<main>
+
+<!-- ============================ 1 · HERO ============================ -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow">AI-Powered Legal Intelligence</span>
+      <h1 class="display hero-title">
+        <span>SECURE.</span>
+        <span>UNDERSTAND.</span>
+        <span><em>VERIFY.</em></span>
+      </h1>
+      <p class="hero-sub">AI-powered legal intelligence with cybersecurity built into the workflow.</p>
+      <p class="hero-body">Secure documents before AI analysis, understand complex legal language, uncover contradictions, and connect clauses to the law behind them.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="signup.html">Get Started <i data-i="arrow-right" class="arr"></i></a>
+        <a class="btn btn-secondary" href="#why">Explore JURISAI</a>
+      </div>
+      <ul class="trust-row" aria-label="Principles">
+        <li><i data-i="shield-check"></i><span>Security-first document processing</span></li>
+        <li><i data-i="link"></i><span>Source-grounded AI</span></li>
+        <li><i data-i="globe"></i><span>Jurisdiction-aware research</span></li>
+      </ul>
+    </div>
+
+<!-- Hero visual: document intelligence (floating documents, scales seal, status cards) -->
+    <div class="hero-vis" id="heroVis">
+      <div class="vis" aria-label="JURISAI product visualization: documents orbiting a central scales emblem above a secure platform">
+        <div class="plat p1"></div>
+        <div class="plat p2"></div>
+        <div class="plat p3"></div>
+        <svg class="orbit" viewBox="0 0 600 600" fill="none" aria-hidden="true">
+          <ellipse cx="300" cy="284" rx="262" ry="104" stroke="#A8863F" stroke-width="1" stroke-dasharray="3 6" opacity=".75"/>
+          <ellipse cx="300" cy="284" rx="170" ry="64" stroke="#A8863F" stroke-width="1" opacity=".45"/>
+          <path d="M300 196V168" stroke="#A8863F" stroke-width="1"/>
+          <path d="M212 284H160" stroke="#A8863F" stroke-width="1"/>
+          <path d="M388 284H440" stroke="#A8863F" stroke-width="1"/>
+          <circle cx="300" cy="168" r="3.5" fill="#A8863F"/>
+          <circle cx="160" cy="284" r="3.5" fill="#A8863F"/>
+          <circle cx="440" cy="284" r="3.5" fill="#A8863F"/>
+          <circle cx="76" cy="226" r="3" fill="#D2B26A"/>
+          <circle cx="538" cy="318" r="3" fill="#D2B26A"/>
+          <circle cx="300" cy="388" r="3" fill="#D2B26A"/>
+        </svg>
+        <div class="seal"><img src="assets/logo-mark.png" alt="JURISAI scales emblem"></div>
+
+        <div class="doc" style="--r:0deg;left:235px;top:6px;width:130px;height:162px;animation-delay:-1s">
+          <div class="doc-t"><span class="doc-b">PDF</span><span class="doc-n">Legal Notice.pdf</span></div>
+          <div class="sk" style="width:90%"></div><div class="sk g" style="width:60%"></div><div class="sk" style="width:80%"></div><div class="sk" style="width:70%"></div>
+          <div class="doc-f"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg>Verified</div>
+        </div>
+        <div class="doc" style="--r:-5deg;left:8px;top:196px;animation-delay:-3s">
+          <div class="doc-t"><span class="doc-b">PDF</span><span class="doc-n">Contract.pdf</span></div>
+          <div class="sk" style="width:90%"></div><div class="sk" style="width:75%"></div><div class="sk g" style="width:55%"></div><div class="sk" style="width:85%"></div><div class="sk" style="width:60%"></div><div class="sk" style="width:80%"></div>
+          <div class="doc-f"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg>Scanned</div>
+        </div>
+        <div class="doc" style="--r:5deg;left:442px;top:178px;animation-delay:-5s">
+          <div class="doc-t"><span class="doc-b">PDF</span><span class="doc-n">Policy.pdf</span></div>
+          <div class="sk" style="width:85%"></div><div class="sk g" style="width:65%"></div><div class="sk" style="width:90%"></div><div class="sk" style="width:70%"></div><div class="sk" style="width:80%"></div><div class="sk" style="width:55%"></div>
+          <div class="doc-f"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg>Scanned</div>
+        </div>
+
+        <div class="stat" style="left:0;top:78px;animation-delay:-2s"><span class="sic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg></span><div><b>Scanned</b><small>No threats found</small></div></div>
+        <div class="stat" style="right:0;top:56px;animation-delay:-4s"><span class="sic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg></span><div><b>Analyzed</b><small>14 key clauses</small></div></div>
+        <div class="stat" style="left:6px;top:430px;animation-delay:-1.5s"><span class="sic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg></span><div><b>Verified</b><small>File is safe</small></div></div>
+        <div class="stat" style="right:0;top:418px;animation-delay:-3.5s"><span class="sic gd"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M7 20h10M5 7h14"/><path d="M5 7l-3 7a3 3 0 006 0L5 7zM19 7l-3 7a3 3 0 006 0l-3-7z"/></svg></span><div><b>Matched to Law</b><small>Relevant legal source</small></div></div>
+        <div class="stat" style="left:208px;top:524px;animation-delay:-2.5s"><span class="sic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg></span><div><b>Explained</b><small>In simple language</small></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 2 · WHY ============================ -->
+<section class="section section-sunken" id="why">
+  <div class="wrap">
+    <div class="why-grid">
+      <div class="why-copy reveal">
+        <span class="eyebrow">Why JURISAI</span>
+        <h2 class="h2">Legal AI should not read <em>unverified</em> files blindly.</h2>
+        <p class="lede">A contract can carry hidden instructions, altered text or sensitive data no one meant to share. Most document AI reads first and asks questions never. JURISAI inspects every file before any model sees it — then shows its working.</p>
+      </div>
+
+      <div class="why-compare reveal">
+        <div class="cmp cmp-bad">
+          <div class="cmp-label"><span class="label">Typical document AI</span><span class="chip chip-risk">Unscreened</span></div>
+          <div class="flow">
+            <span class="flow-node">Upload</span><span class="flow-line dashed"></span><span class="flow-node">Model reads everything</span>
+          </div>
+        </div>
+        <div class="cmp cmp-good">
+          <div class="cmp-label"><span class="label">JURISAI</span><span class="chip chip-ok">Verified first</span></div>
+          <div class="flow">
+            <span class="flow-node">Upload</span><span class="flow-line"></span>
+            <span class="flow-node gate"><i data-i="shield-check" data-size="sm"></i>Security gateway</span><span class="flow-line"></span>
+            <span class="flow-node">Verified</span><span class="flow-line"></span>
+            <span class="flow-node ai">Legal AI</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="principles">
+      <article class="principle reveal"><i data-i="shield-check" data-size="lg"></i><h3 class="h3">Security before intelligence</h3><p>Files are screened for threats, tampering and sensitive data before analysis begins. Anything that fails is quarantined, not read.</p></article>
+      <article class="principle reveal"><i data-i="link" data-size="lg"></i><h3 class="h3">Answers you can trace</h3><p>Every explanation points back to a passage in your document or a named legal source. If the evidence isn’t there, JURISAI says so.</p></article>
+      <article class="principle reveal"><i data-i="globe" data-size="lg"></i><h3 class="h3">Law depends on where you are</h3><p>Research is scoped to a jurisdiction you choose — so a notice clause is read against the right statute, not a generic one.</p></article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 3 · SECURITY BEFORE INTELLIGENCE ============================ -->
+<section class="section section-dark security" id="security">
+  <div class="sec-grid-bg" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Security before intelligence</span>
+      <h2 class="h2">Every document passes the gate <em>before</em> the AI reads a word.</h2>
+      <p class="lede">The Security Gateway is the first stage of JURISAI, not an add-on. Nothing reaches the legal AI until it has been inspected, decided on, and attested.</p>
+    </div>
+
+    <div class="gateway reveal" id="gateway">
+      <ol class="gw-steps" role="tablist" aria-label="Security gateway stages">
+        <li><button role="tab" class="gw-step" data-i="0"><span class="gw-n">01</span><span class="gw-t">Upload</span><span class="gw-d">File received and sandboxed</span></button></li>
+        <li><button role="tab" class="gw-step" data-i="1"><span class="gw-n">02</span><span class="gw-t">Threat &amp; integrity checks</span><span class="gw-d">Type, hash, malware, hidden content</span></button></li>
+        <li><button role="tab" class="gw-step" data-i="2"><span class="gw-n">03</span><span class="gw-t">Sensitive data inspection</span><span class="gw-d">Personal and financial identifiers</span></button></li>
+        <li><button role="tab" class="gw-step" data-i="3"><span class="gw-n">04</span><span class="gw-t">Security decision</span><span class="gw-d">Verify, review or quarantine</span></button></li>
+        <li><button role="tab" class="gw-step" data-i="4"><span class="gw-n">05</span><span class="gw-t">Verified document</span><span class="gw-d">Attested and cleared</span></button></li>
+        <li><button role="tab" class="gw-step" data-i="5"><span class="gw-n">06</span><span class="gw-t">Legal AI</span><span class="gw-d">Analysis begins — verified files only</span></button></li>
+      </ol>
+
+      <div class="gw-console">
+        <div class="gw-bar">
+          <span class="mono">SECURITY GATEWAY · <b id="gw-title">STAGE 01</b></span>
+          <span class="gw-progress"><i id="gw-prog"></i></span>
+          <span class="mono gw-file"><i data-i="file" data-size="sm"></i>Employment_Contract.pdf</span>
+        </div>
+
+        <!-- 01 Upload -->
+        <div class="gw-panel" data-i="0">
+          <div class="drop">
+            <i data-i="upload" data-size="lg"></i>
+            <div><strong>Employment_Contract.pdf</strong><span class="mono">2.4 MB · application/pdf · received 14:02:11</span></div>
+            <span class="chip chip-warn"><span class="dot dot-warn"></span>Unverified</span>
+          </div>
+          <p class="gw-note">The file is placed in an isolated sandbox. It is not opened by any AI component, and it is not trusted yet.</p>
+          <div class="kv"><div><span>Status</span><b>Quarantined pending checks</b></div><div><span>Visible to AI</span><b>No</b></div><div><span>Size limit</span><b>50 MB per file</b></div></div>
+        </div>
+
+        <!-- 02 Threat & integrity -->
+        <div class="gw-panel" data-i="1">
+          <ul class="checks">
+            <li><i data-i="check" data-size="sm"></i><span>File type matches content (MIME)</span><em class="mono">PASS</em></li>
+            <li><i data-i="check" data-size="sm"></i><span>SHA-256 integrity hash computed</span><em class="mono">PASS</em></li>
+            <li><i data-i="check" data-size="sm"></i><span>Malware and embedded-script scan</span><em class="mono">0 THREATS</em></li>
+            <li><i data-i="check" data-size="sm"></i><span>Hidden macros and active content</span><em class="mono">NONE</em></li>
+            <li><i data-i="check" data-size="sm"></i><span>Prompt-injection pattern screen</span><em class="mono">CLEAR</em></li>
+          </ul>
+          <p class="gw-note">Hidden text that tries to instruct an AI (“ignore previous instructions…”) is caught here, before it can steer an analysis.</p>
+        </div>
+
+        <!-- 03 Sensitive data -->
+        <div class="gw-panel" data-i="2">
+          <table class="sens">
+            <thead><tr><th>Category</th><th>Found</th><th>Handling</th></tr></thead>
+            <tbody>
+              <tr><td>Personal identifiers</td><td class="mono">4</td><td><span class="chip chip-gold">Masked for AI</span></td></tr>
+              <tr><td>Financial account references</td><td class="mono">1</td><td><span class="chip chip-gold">Masked for AI</span></td></tr>
+              <tr><td>Health information</td><td class="mono">0</td><td><span class="chip">Not present</span></td></tr>
+              <tr><td>Credentials and secrets</td><td class="mono">0</td><td><span class="chip">Not present</span></td></tr>
+            </tbody>
+          </table>
+          <p class="gw-note">Sensitive fields are surfaced to you. You decide what is masked, kept or excluded before analysis.</p>
+        </div>
+
+        <!-- 04 Decision -->
+        <div class="gw-panel" data-i="3">
+          <div class="decide">
+            <div class="d d-ok on"><i data-i="shield-check"></i><b>Verified</b><span>All checks passed. Cleared for analysis.</span></div>
+            <div class="d d-warn"><i data-i="alert"></i><b>Review required</b><span>Findings need your decision before use.</span></div>
+            <div class="d d-risk"><i data-i="x"></i><b>Quarantined</b><span>Failed checks. Never sent to the AI.</span></div>
+          </div>
+          <p class="gw-note"><strong>Decision:</strong> Verified. The outcome is recorded with the document and can be reviewed at any time.</p>
+        </div>
+
+        <!-- 05 Verified -->
+        <div class="gw-panel" data-i="4">
+          <div class="cert">
+            <div class="cert-seal"><i data-i="shield-check" data-size="lg"></i></div>
+            <div class="cert-body">
+              <span class="label">Verification record</span>
+              <h4>Employment_Contract.pdf</h4>
+              <dl class="mono">
+                <div><dt>Digest</dt><dd>sha256:9f2c7a…e41a</dd></div>
+                <div><dt>Decision</dt><dd>VERIFIED</dd></div>
+                <div><dt>Checks</dt><dd>5 / 5 passed</dd></div>
+                <div><dt>Verified</dt><dd>14:02:13 IST</dd></div>
+              </dl>
+            </div>
+            <span class="chip chip-ok">Cleared</span>
+          </div>
+          <p class="gw-note">The attestation travels with the document. If the file changes, its digest changes — and it must be verified again.</p>
+        </div>
+
+        <!-- 06 Legal AI -->
+        <div class="gw-panel" data-i="5">
+          <div class="into-ai">
+            <div class="ai-in"><i data-i="file" data-size="sm"></i>Verified documents only</div>
+            <i data-i="arrow-right"></i>
+            <div class="ai-core"><img src="assets/logo-mark-light.png" alt="">Legal AI</div>
+          </div>
+          <ul class="ai-caps">
+            <li>Clause extraction</li><li>Plain-language explanation</li><li>Contradiction detection</li><li>Law matching</li><li>Grounded Q&amp;A</li>
+          </ul>
+          <p class="gw-note">Only now does intelligence begin — on content that has been inspected, decided on and attested.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 4 · UNDERSTAND ============================ -->
+<section class="section" id="understand">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Understand legal language</span>
+      <h2 class="h2">From dense clause to <em>clear meaning.</em></h2>
+      <p class="lede">JURISAI doesn’t just summarise. It takes a clause apart — the terms of art, the plain meaning, and what it actually asks of you.</p>
+    </div>
+
+    <div class="anatomy reveal">
+      <div class="anat-doc card card-top">
+        <div class="card-head"><span class="label">1 · Original clause</span><span class="mono">Employment_Contract.pdf · §11.2 · p.4</span></div>
+        <blockquote class="clause">
+          Either party may terminate this Agreement upon thirty (30) days’ written notice, provided that the Company may, at its <mark data-t="1">sole discretion</mark>, elect to pay salary <mark data-t="2">in lieu of notice</mark>, and the Employee shall <mark data-t="3">remain bound by clause 9</mark> following termination.
+        </blockquote>
+        <div class="anat-foot"><i data-i="scan" data-size="sm"></i><span>3 terms of art identified</span></div>
+      </div>
+
+      <div class="anat-steps">
+        <section class="a-step">
+          <header><span class="a-n">2</span><span class="label">Legal terminology</span></header>
+          <dl class="terms">
+            <div data-t="1"><dt>Sole discretion</dt><dd>The company decides alone, and doesn’t need your agreement or a reason.</dd></div>
+            <div data-t="2"><dt>In lieu of notice</dt><dd>Paying you instead of having you work the notice period.</dd></div>
+            <div data-t="3"><dt>Remain bound</dt><dd>Some duties survive after the job ends — here, those in clause 9.</dd></div>
+          </dl>
+        </section>
+        <section class="a-step">
+          <header><span class="a-n">3</span><span class="label">Plain-language explanation</span></header>
+          <p class="plain">Either you or the company can end the job by giving 30 days’ written notice. The company can choose to pay you for those 30 days and let you go immediately instead. Whichever way it ends, certain promises you made in clause 9 still apply.</p>
+        </section>
+        <section class="a-step">
+          <header><span class="a-n">4</span><span class="label">What it means for you</span></header>
+          <ul class="means">
+            <li>Notice must be <b>in writing</b> — a conversation alone may not count.</li>
+            <li>The company can end your work early, but must still pay for the period.</li>
+            <li>Check clause 9: it may limit where you can work next.</li>
+          </ul>
+        </section>
+        <section class="a-step">
+          <header><span class="a-n">5</span><span class="label">Questions you may want to ask</span></header>
+          <ul class="qs">
+            <li><button type="button">What does clause 9 restrict after I leave? <i data-i="arrow-right" data-size="sm"></i></button></li>
+            <li><button type="button">Is 30 days consistent with my other documents? <i data-i="arrow-right" data-size="sm"></i></button></li>
+            <li><button type="button">Does the law set a minimum notice period here? <i data-i="arrow-right" data-size="sm"></i></button></li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 5 · CONTRADICTIONS ============================ -->
+<section class="section section-sunken" id="contradictions">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Detect contradictions</span>
+      <h2 class="h2">Two documents. <em>One conflict</em> no one noticed.</h2>
+      <p class="lede">Contracts, policies and notices are written at different times by different people. JURISAI reads them together and surfaces where they disagree — with both sources side by side.</p>
+    </div>
+
+    <div class="conflict reveal">
+      <article class="sheet sheet-a">
+        <header><span class="tag">SOURCE A</span><h4>Employment Contract</h4><span class="mono">§11.2 · p.4</span></header>
+        <div class="lines"><i></i><i></i><i class="w60"></i></div>
+        <p class="hit"><span class="hit-k">Notice period</span><b>30 days</b> written notice by either party</p>
+        <div class="lines"><i></i><i class="w80"></i></div>
+      </article>
+
+      <div class="conflict-mid" aria-hidden="true">
+        <span class="cm-line"></span>
+        <span class="cm-badge"><i data-i="compare"></i></span>
+        <span class="cm-line"></span>
+      </div>
+
+      <article class="sheet sheet-b">
+        <header><span class="tag">SOURCE B</span><h4>Company Policy</h4><span class="mono">§4.3 · p.12</span></header>
+        <div class="lines"><i></i><i class="w80"></i></div>
+        <p class="hit"><span class="hit-k">Notice period</span><b>60 days</b> notice before termination of employment</p>
+        <div class="lines"><i></i><i></i><i class="w60"></i></div>
+      </article>
+    </div>
+
+    <div class="finding card card-top reveal">
+      <div class="finding-head">
+        <div class="finding-title"><i data-i="alert"></i><div><span class="label">JURISAI finding</span><h3 class="h3">Potential contradiction detected</h3></div></div>
+        <span class="chip chip-warn"><span class="dot dot-warn"></span>Review required</span>
+      </div>
+      <div class="finding-grid">
+        <div><span class="label">Source A</span><p>Employment Contract §11.2 requires <b>30 days</b>’ notice.</p></div>
+        <div><span class="label">Source B</span><p>Company Policy §4.3 requires <b>60 days</b>’ notice.</p></div>
+        <div><span class="label">Why it matters</span><p>The notice period you owe — or are owed — may differ by 30 days, affecting pay, start dates and obligations during the gap.</p></div>
+        <div><span class="label">What JURISAI can’t decide</span><p>Which document takes precedence may depend on an order-of-precedence clause or applicable law. This is flagged for a qualified person to review.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 6 · LAW ============================ -->
+<section class="section" id="law">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Connect clauses to law</span>
+      <h2 class="h2">The clause is only half the story. <em>The law behind it</em> is the rest.</h2>
+      <p class="lede">Choose a jurisdiction and JURISAI maps each clause to the legal concept it engages and the source that governs it.</p>
+    </div>
+
+    <div class="law reveal">
+      <div class="law-top">
+        <div class="seg" role="tablist" aria-label="Jurisdiction">
+          <button role="tab" class="on" data-j="uk" aria-selected="true">United Kingdom</button>
+          <button role="tab" data-j="in" aria-selected="false">India</button>
+          <button role="tab" data-j="us" aria-selected="false">United States</button>
+        </div>
+        <span class="mono law-hint">Example clause: “Either party may terminate on 30 days’ written notice.”</span>
+      </div>
+
+      <ol class="chain" id="chain">
+        <li class="link"><span class="label">Document clause</span><p class="serif-q" data-f="clause"></p><span class="mono" data-f="ref"></span></li>
+        <li class="link"><span class="label">Legal concept</span><h4 data-f="concept"></h4></li>
+        <li class="link"><span class="label">Jurisdiction</span><h4 data-f="juris"></h4><span class="mono" data-f="sys"></span></li>
+        <li class="link src"><span class="label">Relevant legal source</span><h4 data-f="source"></h4><span class="mono" data-f="cite"></span></li>
+        <li class="link"><span class="label">Explanation</span><p data-f="expl"></p></li>
+      </ol>
+
+      <div class="disclaimer">
+        <i data-i="scales"></i>
+        <p><b>AI-assisted legal research — not legal advice.</b> JURISAI helps you find and understand relevant law. It does not replace a qualified lawyer, and application depends on facts, role and recent changes. Always verify sources before relying on them.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 7 · ASK ============================ -->
+<section class="section section-sunken" id="ask">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Ask JURISAI</span>
+      <h2 class="h2">Ask your documents. <em>See the evidence.</em></h2>
+      <p class="lede">Answers are grounded in the passages you uploaded and the law you selected — each claim links to its source, and the grounding is shown, not assumed.</p>
+    </div>
+
+    <div class="ask reveal">
+      <div class="ask-chat card">
+        <div class="ask-bar">
+          <span class="mono"><i data-i="shield-check" data-size="sm"></i> 2 verified documents</span>
+          <span class="chip"><i data-i="globe" data-size="sm"></i>United Kingdom</span>
+        </div>
+        <div class="msgs">
+          <div class="msg user"><span class="who">You</span><p>What does this termination clause actually require me to do?</p></div>
+          <div class="msg ai">
+            <span class="who"><img src="assets/logo-mark.png" alt="">JURISAI</span>
+            <div class="ans">
+              <p>Clause 11.2 lets either side end the contract with <b>30 days’ written notice</b>. In practice you need to put your notice <b>in writing</b>, and the company may choose to pay you instead of having you work the period <button class="cite" data-s="1">1</button>.</p>
+              <p>After you leave, your obligations under <b>clause 9</b> — confidentiality and non-solicitation — continue to apply <button class="cite" data-s="2">2</button>.</p>
+              <p>Two things to check: the Company Policy states <b>60 days</b>, which conflicts with the contract <button class="cite" data-s="3">3</button>, and UK statute sets a minimum notice that a contract can’t reduce <button class="cite" data-s="4">4</button>.</p>
+            </div>
+            <div class="ground">
+              <div class="g-row"><span class="label">Grounding</span><span class="meter" aria-label="High grounding"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i></span><b>High</b></div>
+              <span class="mono">4 of 4 claims cited · 3 document passages · 1 legal source</span>
+            </div>
+          </div>
+        </div>
+        <div class="ask-input"><span>Ask a follow-up about your documents…</span><span class="send"><i data-i="arrow-right" data-size="sm"></i></span></div>
+      </div>
+
+      <aside class="ask-src card card-top" aria-live="polite">
+        <div class="card-head"><span class="label">Source reference</span><span class="chip chip-gold" id="src-kind">Document</span></div>
+        <div class="card-body">
+          <h4 id="src-title">Employment_Contract.pdf</h4>
+          <span class="mono" id="src-loc">§11.2 · p.4</span>
+          <blockquote id="src-quote"></blockquote>
+          <p class="src-note" id="src-note"></p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 8 · HOW IT WORKS ============================ -->
+<section class="section" id="how">
+  <div class="wrap">
+    <div class="section-head center reveal">
+      <span class="eyebrow">How it works</span>
+      <h2 class="h2">Six stages. <em>One verified path.</em></h2>
+    </div>
+    <ol class="stages reveal">
+      <li><span class="s-n">01</span><i data-i="upload" data-size="lg"></i><h4>Upload</h4><p>Add contracts, policies, notices and agreements.</p></li>
+      <li><span class="s-n">02</span><i data-i="shield-check" data-size="lg"></i><h4>Secure</h4><p>Every file is screened and attested before analysis.</p></li>
+      <li><span class="s-n">03</span><i data-i="book" data-size="lg"></i><h4>Understand</h4><p>Clauses explained in plain language, with terms defined.</p></li>
+      <li><span class="s-n">04</span><i data-i="compare" data-size="lg"></i><h4>Compare</h4><p>Documents read together to find potential contradictions.</p></li>
+      <li><span class="s-n">05</span><i data-i="scales" data-size="lg"></i><h4>Verify</h4><p>Clauses connected to law in your chosen jurisdiction.</p></li>
+      <li><span class="s-n">06</span><i data-i="message" data-size="lg"></i><h4>Ask</h4><p>Grounded questions, with sources and a grounding signal.</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============================ 9 · TRUST ============================ -->
+<section class="section section-dark trust" id="trust">
+  <div class="wrap trust-grid">
+    <div class="reveal">
+      <span class="eyebrow">Security &amp; trust</span>
+      <h2 class="h2" style="margin-top:22px">Security is the <em>architecture,</em> not a feature.</h2>
+      <p class="lede" style="margin-top:22px">JURISAI is built in layers, so no single control carries the whole weight. Each layer assumes the one before it might fail.</p>
+      <ul class="commit">
+        <li><i data-i="lock"></i><div><b>Encrypted in transit</b><span>Documents travel over modern TLS, end to end.</span></div></li>
+        <li><i data-i="layers"></i><div><b>Isolated before analysis</b><span>Unverified files never touch the AI components.</span></div></li>
+        <li><i data-i="link"></i><div><b>Source-grounded answers</b><span>Claims cite passages; unsupported claims are flagged.</span></div></li>
+        <li><i data-i="database"></i><div><b>Auditable decisions</b><span>Every security outcome is recorded with the document.</span></div></li>
+      </ul>
+    </div>
+
+    <div class="stack reveal" aria-label="Defence-in-depth layers">
+      <div class="layer"><span class="mono">L1</span><b>Encrypted transport</b><em>Data protected in transit</em></div>
+      <div class="layer"><span class="mono">L2</span><b>Sandboxed intake</b><em>Files isolated on arrival</em></div>
+      <div class="layer hl"><span class="mono">L3</span><b>Security gateway</b><em>Integrity · malware · injection · sensitive data</em></div>
+      <div class="layer"><span class="mono">L4</span><b>Verified-only AI pipeline</b><em>Only attested documents enter</em></div>
+      <div class="layer"><span class="mono">L5</span><b>Source-grounded reasoning</b><em>Answers tied to evidence</em></div>
+      <div class="layer"><span class="mono">L6</span><b>Audit trail</b><em>Decisions recorded and reviewable</em></div>
+      <img class="stack-mark" src="assets/logo-mark-light.png" alt="">
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 10 · FINAL CTA ============================ -->
+<section class="final">
+  <div class="wrap final-in reveal">
+    <img src="assets/logo-full.png" alt="JURISAI" class="final-logo">
+    <h2 class="h2">Your documents contain the answers.<br><em>JURISAI helps you find them.</em></h2>
+    <a class="btn btn-primary" href="signup.html">Start Analyzing <i data-i="arrow-right" class="arr"></i></a>
+    <p class="mono">Secure. Understand. Verify.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap foot-grid">
+    <div class="foot-brand">
+      <img src="assets/logo-wordmark.png" alt="JURISAI">
+      <p>Cybersecurity-first AI legal intelligence.</p>
+    </div>
+    <nav aria-label="Footer"><a href="#why">Product</a><a href="#understand">Capabilities</a><a href="#security">Security</a><a href="#how">How It Works</a><a href="#law">Research</a></nav>
+    <nav aria-label="Account"><a href="signin.html">Sign In</a><a href="signup.html">Create account</a><a href="design-system.html">Design system</a></nav>
+  </div>
+  <div class="wrap foot-legal">
+    <p>JURISAI provides AI-assisted legal research and document analysis. It does not provide legal advice and is not a substitute for a qualified legal professional.</p>
+    <p class="mono">© 2026 JURISAI</p>
+  </div>
+</footer>
+
+<script src="assets/site.js"></script>
+<script src="assets/landing.js"></script>
+</body>
+</html>

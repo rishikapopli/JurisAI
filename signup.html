@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create your workspace — JURISAI</title>
+<link rel="icon" href="assets/logo-mark.png">
+<link rel="stylesheet" href="assets/jurisai.css">
+<link rel="stylesheet" href="assets/auth.css">
+</head>
+<body class="auth-body">
+<div class="auth">
+
+  <aside class="auth-side">
+    <img class="side-mark" src="assets/logo-mark-light.png" alt="">
+    <a class="side-brand" href="index.html" aria-label="JURISAI home">
+      <img class="m" src="assets/logo-mark-light.png" alt=""><img class="w" src="assets/logo-wordmark-light.png" alt="JURISAI">
+    </a>
+
+    <div class="side-body">
+      <span class="eyebrow">Your workspace</span>
+      <h2 class="side-title">A workspace built for <em>source-grounded</em> legal research.</h2>
+      <ul class="side-points">
+        <li><i data-i="shield-check"></i><div><b>Secured before analysis</b>Every file is inspected and attested before any AI reads it.</div></li>
+        <li><i data-i="link"></i><div><b>Answers with evidence</b>Each claim points to a passage in your document or a named source.</div></li>
+        <li><i data-i="globe"></i><div><b>Jurisdiction-aware</b>Research is scoped to the law of the place that matters to you.</div></li>
+      </ul>
+    </div>
+
+    <div class="side-foot"><span>Secure · Understand · Verify</span><span>© 2026</span></div>
+  </aside>
+
+  <main class="auth-main">
+    <div class="auth-top">
+      <a class="back" href="index.html"><i data-i="arrow-right" data-size="sm"></i>Back to site</a>
+      <span class="alt">Already have an account? <a class="link-gold" href="signin.html">Sign in</a></span>
+    </div>
+
+    <div class="auth-stage">
+
+      <!-- SIGN UP -->
+      <section class="panel on" data-view="signup" aria-labelledby="t-signup">
+        <div class="panel-head">
+          <h1 id="t-signup">Create your <em>JURISAI</em> workspace</h1>
+          <p>Your workspace is designed for secure, source-grounded legal research.</p>
+        </div>
+        <form class="form" id="signup-form" novalidate>
+          <div class="alert" id="signup-alert" role="alert"><i data-i="alert"></i><span id="signup-alert-t">We couldn’t create your account. Please try again.</span></div>
+          <div class="field" data-f="name">
+            <label for="name">Full name</label>
+            <input class="input" id="name" type="text" autocomplete="name" placeholder="Your full name">
+            <span class="field-msg">Enter your full name.</span>
+          </div>
+          <div class="field" data-f="email">
+            <label for="email">Email</label>
+            <input class="input" id="email" type="email" autocomplete="email" placeholder="you@firm.com">
+            <span class="field-msg">Enter a valid email address.</span>
+          </div>
+          <div class="row-2">
+            <div class="field" data-f="password">
+              <label for="password">Password</label>
+              <div class="input-wrap">
+                <input class="input has-icon" id="password" type="password" autocomplete="new-password" placeholder="Min. 10 characters">
+                <button type="button" class="adorn" data-toggle-pw aria-label="Show password" aria-pressed="false"><i data-i="eye"></i></button>
+              </div>
+              <span class="field-msg">Use at least 10 characters.</span>
+            </div>
+            <div class="field" data-f="confirm">
+              <label for="confirm">Confirm password</label>
+              <div class="input-wrap">
+                <input class="input has-icon" id="confirm" type="password" autocomplete="new-password" placeholder="Repeat password">
+                <button type="button" class="adorn" data-toggle-pw aria-label="Show password" aria-pressed="false"><i data-i="eye"></i></button>
+              </div>
+              <span class="field-msg">Passwords don’t match.</span>
+            </div>
+          </div>
+          <div class="strength" id="strength" data-s="0"><div class="bars"><i></i><i></i><i></i><i></i></div><small id="strength-t">Use 10+ characters with a mix of letters, numbers and symbols.</small></div>
+          <div class="field" data-f="org">
+            <label for="org">Organization <span class="opt">Optional</span></label>
+            <input class="input" id="org" type="text" autocomplete="organization" placeholder="Firm, company or institution">
+          </div>
+          <div class="field" data-f="terms">
+            <label class="check"><input type="checkbox" id="terms"><span>I agree to the <a class="link-gold" href="#">Terms of Service</a> and <a class="link-gold" href="#">Privacy Policy</a>.</span></label>
+            <span class="field-msg">Please accept the terms to continue.</span>
+          </div>
+          <button class="btn btn-primary btn-block" type="submit" id="signup-btn">
+            <span class="lbl-idle">Create Account <i data-i="arrow-right" class="arr"></i></span>
+            <span class="lbl-load"><span class="spin"></span>Creating your workspace…</span>
+          </button>
+          <div class="divider">OR</div>
+          <button type="button" class="btn btn-google btn-block" id="google-btn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.5 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h5.92a5.06 5.06 0 01-2.2 3.32v2.76h3.56c2.08-1.92 3.28-4.74 3.28-8.32z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.67l-3.56-2.76c-.98.66-2.24 1.06-3.72 1.06-2.86 0-5.29-1.93-6.16-4.53H2.17v2.84A11 11 0 0012 23z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 010-4.2V7.06H2.17a11 11 0 000 9.88l3.67-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 002.17 7.06l3.67 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
+            Continue with Google
+          </button>
+        </form>
+      </section>
+
+      <!-- VERIFY EMAIL -->
+      <section class="panel" data-view="verify" aria-labelledby="t-verify">
+        <div class="status-view">
+          <div class="seal"><i data-i="mail"></i></div>
+          <h1 id="t-verify">Verify your <em>email</em></h1>
+          <p>We sent a 6-digit code to <b id="verify-to">your address</b>. Enter it below to activate your workspace.</p>
+        </div>
+        <form class="form" id="verify-form" style="margin-top:28px" novalidate>
+          <div class="alert" id="verify-alert" role="alert"><i data-i="alert"></i><span>That code isn’t right. Check it and try again.</span></div>
+          <div class="code" id="code" role="group" aria-label="Verification code">
+            <input inputmode="numeric" maxlength="1" aria-label="Digit 1" autocomplete="one-time-code">
+            <input inputmode="numeric" maxlength="1" aria-label="Digit 2">
+            <input inputmode="numeric" maxlength="1" aria-label="Digit 3">
+            <input inputmode="numeric" maxlength="1" aria-label="Digit 4">
+            <input inputmode="numeric" maxlength="1" aria-label="Digit 5">
+            <input inputmode="numeric" maxlength="1" aria-label="Digit 6">
+          </div>
+          <button class="btn btn-primary btn-block" type="submit" id="verify-btn">
+            <span class="lbl-idle">Verify email <i data-i="arrow-right" class="arr"></i></span>
+            <span class="lbl-load"><span class="spin"></span>Verifying…</span>
+          </button>
+          <p class="resend"><span id="resend-t">Resend code in 30s</span> <button type="button" id="resend" disabled>Resend code</button></p>
+          <p class="alt-line"><a href="#" data-go="signup" style="margin:0">Use a different email</a></p>
+        </form>
+      </section>
+
+      <!-- CREATED -->
+      <section class="panel" data-view="created" aria-labelledby="t-created">
+        <div class="status-view">
+          <div class="seal ok"><i data-i="shield-check"></i></div>
+          <h1 id="t-created">Your workspace is <em>ready.</em></h1>
+          <p>Your account is verified. Here is how most people begin.</p>
+          <ol class="steps-list">
+            <li><span class="n">01</span>Upload your first document — it passes the security gateway first.</li>
+            <li><span class="n">02</span>Choose the jurisdiction that applies to you.</li>
+            <li><span class="n">03</span>Ask a question and review the sources behind the answer.</li>
+          </ol>
+          <a class="btn btn-primary btn-block" href="app.html#/welcome">Enter workspace <i data-i="arrow-right" class="arr"></i></a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<details class="dev" data-dev>
+  <summary>PREVIEW STATES</summary>
+  <div class="menu">
+    <button data-state="idle">Default</button>
+    <button data-state="errors">Validation errors</button>
+    <button data-state="loading">Loading</button>
+    <button data-state="verify">Email verification</button>
+    <button data-state="badcode">Invalid code</button>
+    <button data-state="created">Account created</button>
+  </div>
+</details>
+
+<script src="assets/site.js"></script>
+<script src="assets/session.js"></script>
+<script src="assets/auth.js"></script>
+<script>
+  JurisAuth.initSignup({ redirect: 'app.html#/welcome' });
+</script>
+</body>
+</html>

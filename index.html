@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JURISAI — Phase 1 Document Workspace</title>
+<meta name="description" content="A local document workspace for uploading, validating, viewing, downloading, archiving, and removing your own legal files. Advanced analysis is not enabled.">
+<link rel="icon" href="assets/logo-mark.png">
+<link rel="stylesheet" href="assets/jurisai.css">
+<link rel="stylesheet" href="assets/landing.css">
+</head>
+<body>
+
+<!-- ============================ NAV ============================ -->
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="JURISAI home">
+      <img class="mark" src="assets/logo-mark.png" alt="">
+      <img class="word" src="assets/logo-wordmark.png" alt="JURISAI">
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#current">Product</a>
+      <a href="#current">Capabilities</a>
+      <a href="#trust">Security</a>
+      <a href="#current">How It Works</a>
+      <a href="#current">Roadmap</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="signin" href="signin.html">Sign In</a>
+      <a class="btn btn-primary btn-sm" href="signup.html">Get Started <i data-i="arrow-right" class="arr" data-size="sm"></i></a>
+      <button class="nav-toggle" aria-label="Menu" aria-expanded="false"><i data-i="menu"></i></button>
+    </div>
+  </div>
+  <nav class="mobile-menu" aria-label="Mobile">
+    <a href="#current">Product</a><a href="#current">Capabilities</a><a href="#trust">Security</a><a href="#current">How It Works</a><a href="#current">Roadmap</a><a href="signin.html">Sign In</a>
+  </nav>
+</header>
+
+<main>
+
+<!-- ============================ 1 · HERO ============================ -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow">Phase 1 · Document workspace</span>
+      <h1 class="display hero-title">
+        <span>SECURE.</span>
+        <span>UNDERSTAND.</span>
+        <span><em>VERIFY.</em></span>
+      </h1>
+      <p class="hero-sub">A focused workspace for storing and reviewing real legal documents.</p>
+      <p class="hero-body">Upload, validate, hash, view, download, archive, and remove your own files. Advanced legal analysis is not enabled yet.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="signup.html">Get Started <i data-i="arrow-right" class="arr"></i></a>
+        <a class="btn btn-secondary" href="#current">Explore JURISAI</a>
+      </div>
+      <ul class="trust-row" aria-label="Principles">
+        <li><i data-i="shield-check"></i><span>Real document storage</span></li>
+        <li><i data-i="link"></i><span>Document text extraction</span></li>
+        <li><i data-i="globe"></i><span>File integrity checks</span></li>
+      </ul>
+    </div>
+
+<!-- Hero visual: document intelligence (floating documents, scales seal, status cards) -->
+    <div class="hero-vis" id="heroVis"><span class="eyebrow" style="position:absolute;top:0;right:0;z-index:5">Concept illustration · not live file data</span>
+      <div class="vis" aria-label="JURISAI product visualization: documents orbiting a central scales emblem above a secure platform">
+        <div class="plat p1"></div>
+        <div class="plat p2"></div>
+        <div class="plat p3"></div>
+        <svg class="orbit" viewBox="0 0 600 600" fill="none" aria-hidden="true">
+          <ellipse cx="300" cy="284" rx="262" ry="104" stroke="#A8863F" stroke-width="1" stroke-dasharray="3 6" opacity=".75"/>
+          <ellipse cx="300" cy="284" rx="170" ry="64" stroke="#A8863F" stroke-width="1" opacity=".45"/>
+          <path d="M300 196V168" stroke="#A8863F" stroke-width="1"/>
+          <path d="M212 284H160" stroke="#A8863F" stroke-width="1"/>
+          <path d="M388 284H440" stroke="#A8863F" stroke-width="1"/>
+          <circle cx="300" cy="168" r="3.5" fill="#A8863F"/>
+          <circle cx="160" cy="284" r="3.5" fill="#A8863F"/>
+          <circle cx="440" cy="284" r="3.5" fill="#A8863F"/>
+          <circle cx="76" cy="226" r="3" fill="#D2B26A"/>
+          <circle cx="538" cy="318" r="3" fill="#D2B26A"/>
+          <circle cx="300" cy="388" r="3" fill="#D2B26A"/>
+        </svg>
+        <div class="seal"><img src="assets/logo-mark.png" alt="JURISAI scales emblem"></div>
+
+        <div class="doc" style="--r:0deg;left:235px;top:6px;width:130px;height:162px;animation-delay:-1s">
+          <div class="doc-t"><span class="doc-b">PDF</span><span class="doc-n">PDF file</span></div>
+          <div class="sk" style="width:90%"></div><div class="sk g" style="width:60%"></div><div class="sk" style="width:80%"></div><div class="sk" style="width:70%"></div>
+          <div class="doc-f"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg>Checks recorded</div>
+        </div>
+        <div class="doc" style="--r:-5deg;left:8px;top:196px;animation-delay:-3s">
+          <div class="doc-t"><span class="doc-b">PDF</span><span class="doc-n">Document.pdf</span></div>
+          <div class="sk" style="width:90%"></div><div class="sk" style="width:75%"></div><div class="sk g" style="width:55%"></div><div class="sk" style="width:85%"></div><div class="sk" style="width:60%"></div><div class="sk" style="width:80%"></div>
+          <div class="doc-f"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg>Stored</div>
+        </div>
+        <div class="doc" style="--r:5deg;left:442px;top:178px;animation-delay:-5s">
+          <div class="doc-t"><span class="doc-b">PDF</span><span class="doc-n">DOCX file</span></div>
+          <div class="sk" style="width:85%"></div><div class="sk g" style="width:65%"></div><div class="sk" style="width:90%"></div><div class="sk" style="width:70%"></div><div class="sk" style="width:80%"></div><div class="sk" style="width:55%"></div>
+          <div class="doc-f"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg>Stored</div>
+        </div>
+
+        <div class="stat" style="left:0;top:78px;animation-delay:-2s"><span class="sic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg></span><div><b>File checks</b><small>Type · structure · SHA-256</small></div></div>
+        <div class="stat" style="right:0;top:56px;animation-delay:-4s"><span class="sic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg></span><div><b>Analysis</b><small>Not enabled</small></div></div>
+        <div class="stat" style="left:6px;top:430px;animation-delay:-1.5s"><span class="sic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg></span><div><b>Antivirus</b><small>Optional · configure ClamAV</small></div></div>
+        <div class="stat" style="right:0;top:418px;animation-delay:-3.5s"><span class="sic gd"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M7 20h10M5 7h14"/><path d="M5 7l-3 7a3 3 0 006 0L5 7zM19 7l-3 7a3 3 0 006 0l-3-7z"/></svg></span><div><b>Legal sources</b><small>Not connected</small></div></div>
+        <div class="stat" style="left:208px;top:524px;animation-delay:-2.5s"><span class="sic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4 10-10"/></svg></span><div><b>Document viewer</b><small>Extracted text and original file</small></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-sunken" id="current">
+  <div class="wrap">
+    <div class="section-head reveal"><span class="eyebrow">Available now</span><h2 class="h2">Real files. <em>Honest status.</em></h2><p class="lede">The current Phase 1 workspace focuses on document handling. It does not create legal analysis or sample records.</p></div>
+    <div class="principles">
+      <article class="principle reveal"><i data-i="upload" data-size="lg"></i><h3 class="h3">Upload and store</h3><p>Upload PDF, DOCX, UTF-8 TXT, PNG, JPG, or TIFF files up to 50 MB. Files and document records are stored in your local workspace.</p></article>
+      <article class="principle reveal"><i data-i="shield-check" data-size="lg"></i><h3 class="h3">Validate and hash</h3><p>File extension, signature, structure, and SHA-256 are checked and recorded. ClamAV scanning runs only when a scanner is configured.</p></article>
+      <article class="principle reveal"><i data-i="file" data-size="lg"></i><h3 class="h3">Read and manage</h3><p>View extracted PDF, DOCX, and TXT text, open supported files in the browser, download originals, archive, restore, or delete them.</p></article>
+    </div>
+    <div class="banner"><i data-i="info"></i><div><b>Not enabled in this version</b><p>OCR, malware scanning without configured ClamAV, sensitive-data detection, LLM analysis, legal research, comparison, reports, and Google authentication.</p></div></div>
+  </div>
+</section>
+<section class="section section-dark trust" id="trust"><div class="wrap trust-grid"><div><span class="eyebrow">Security &amp; trust</span><h2 class="h2" style="margin-top:22px">Security status you can <em>inspect.</em></h2><p class="lede" style="margin-top:22px">Each uploaded record includes its checksum and the file checks that actually ran. Antivirus status is explicit, and analysis remains unavailable until implemented.</p><a class="btn btn-primary" href="signup.html">Create an account <i data-i="arrow-right" class="arr"></i></a></div><div class="stack"><div class="layer"><span class="mono">01</span><b>File type</b><em>Extension and signature validation</em></div><div class="layer"><span class="mono">02</span><b>Document structure</b><em>PDF, DOCX, and text parsing</em></div><div class="layer hl"><span class="mono">03</span><b>SHA-256</b><em>Digest recorded per file</em></div><div class="layer"><span class="mono">04</span><b>Antivirus</b><em>Optional ClamAV integration</em></div><img class="stack-mark" src="assets/logo-mark-light.png" alt=""></div></div></section><!-- ============================ 10 · FINAL CTA ============================ -->
+<section class="final">
+  <div class="wrap final-in reveal">
+    <img src="assets/logo-full.png" alt="JURISAI" class="final-logo">
+    <h2 class="h2">Your documents contain the answers.<br><em>JURISAI helps you find them.</em></h2>
+    <a class="btn btn-primary" href="signup.html">Start Analyzing <i data-i="arrow-right" class="arr"></i></a>
+    <p class="mono">Secure. Understand. Verify.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap foot-grid">
+    <div class="foot-brand">
+      <img src="assets/logo-wordmark.png" alt="JURISAI">
+      <p>Cybersecurity-first AI legal intelligence.</p>
+    </div>
+    <nav aria-label="Footer"><a href="#current">Product</a><a href="#current">Capabilities</a><a href="#trust">Security</a><a href="#current">How It Works</a><a href="#current">Roadmap</a></nav>
+    <nav aria-label="Account"><a href="signin.html">Sign In</a><a href="signup.html">Create account</a><a href="design-system.html">Design system</a></nav>
+  </div>
+  <div class="wrap foot-legal">
+    <p>JURISAI provides AI-assisted legal research and document analysis. It does not provide legal advice and is not a substitute for a qualified legal professional.</p>
+    <p class="mono">© 2026 JURISAI</p>
+  </div>
+</footer>
+
+<script src="assets/site.js"></script>
+<script src="assets/landing.js"></script>
+</body>
+</html>
+
+

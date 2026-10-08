@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in — JURISAI</title>
+<link rel="icon" href="assets/logo-mark.png">
+<link rel="stylesheet" href="assets/jurisai.css">
+<link rel="stylesheet" href="assets/auth.css">
+</head>
+<body class="auth-body">
+<div class="auth">
+
+  <!-- ===== Left: secure environment ===== -->
+  <aside class="auth-side">
+    <img class="side-mark" src="assets/logo-mark-light.png" alt="">
+    <a class="side-brand" href="index.html" aria-label="JURISAI home">
+      <img class="m" src="assets/logo-mark-light.png" alt=""><img class="w" src="assets/logo-wordmark-light.png" alt="JURISAI">
+    </a>
+
+    <div class="side-body">
+      <span class="eyebrow">Secure workspace</span>
+      <h2 class="side-title">Enter an environment where every document is <em>verified</em> before it is read.</h2>
+      <p class="side-copy">Your sessions, files and research stay behind JURISAI’s security-first workflow.</p>
+    </div>
+
+    <div>
+      <div class="session" id="session" aria-live="polite">
+        <div class="session-head"><span class="mono">SESSION</span><span class="mono" id="session-state">AWAITING AUTHENTICATION</span></div>
+        <ul>
+          <li><span class="s-ic"><i data-i="check"></i></span><span>Encrypted connection established</span><em class="mono">TLS</em></li>
+          <li><span class="s-ic"><i data-i="check"></i></span><span>Workspace isolation ready</span><em class="mono">READY</em></li>
+          <li><span class="s-ic"><i data-i="check"></i></span><span>Security gateway online</span><em class="mono">ONLINE</em></li>
+          <li class="wait" id="session-auth"><span class="s-ic"><i data-i="check"></i></span><span id="session-auth-t">Waiting for sign-in</span><em class="mono" id="session-auth-s">PENDING</em></li>
+        </ul>
+      </div>
+      <div class="side-foot" style="margin-top:28px"><span>Secure · Understand · Verify</span><span>© 2026</span></div>
+    </div>
+  </aside>
+
+  <!-- ===== Right: form ===== -->
+  <main class="auth-main">
+    <div class="auth-top">
+      <a class="back" href="index.html"><i data-i="arrow-right" data-size="sm"></i>Back to site</a>
+      <span class="alt">New to JURISAI? <a class="link-gold" href="signup.html">Create account</a></span>
+    </div>
+
+    <div class="auth-stage">
+
+      <!-- SIGN IN -->
+      <section class="panel on" data-view="signin" aria-labelledby="t-signin">
+        <div class="panel-head">
+          <h1 id="t-signin">Sign in</h1>
+          <p>Welcome back. Continue to your secure legal workspace.</p>
+        </div>
+        <form class="form" id="signin-form" novalidate>
+          <div class="alert" id="signin-alert" role="alert"><i data-i="alert"></i><span><b>We couldn’t sign you in.</b> Check your email and password, then try again.</span></div>
+          <div class="field" data-f="email">
+            <label for="email">Email</label>
+            <div class="input-wrap"><input class="input" id="email" name="email" type="email" autocomplete="email" placeholder="you@firm.com" required></div>
+            <span class="field-msg">Enter a valid email address.</span>
+          </div>
+          <div class="field" data-f="password">
+            <label for="password">Password</label>
+            <div class="input-wrap">
+              <input class="input has-icon" id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+              <button type="button" class="adorn" data-toggle-pw aria-label="Show password" aria-pressed="false"><i data-i="eye"></i></button>
+            </div>
+            <span class="field-msg">Enter your password.</span>
+          </div>
+          <div class="row-between">
+            <label class="check"><input type="checkbox" name="remember" checked>Keep me signed in on this device</label>
+            <a class="forgot" href="#" data-go="forgot">Forgot password?</a>
+          </div>
+          <button class="btn btn-primary btn-block" type="submit" id="signin-btn">
+            <span class="lbl-idle">Sign In <i data-i="arrow-right" class="arr"></i></span>
+            <span class="lbl-load"><span class="spin"></span>Verifying securely…</span>
+            <span class="lbl-done"><i data-i="check"></i>Signed in</span>
+          </button>
+          <div class="divider">OR</div>
+          <button type="button" class="btn btn-google btn-block" id="google-btn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.5 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h5.92a5.06 5.06 0 01-2.2 3.32v2.76h3.56c2.08-1.92 3.28-4.74 3.28-8.32z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.67l-3.56-2.76c-.98.66-2.24 1.06-3.72 1.06-2.86 0-5.29-1.93-6.16-4.53H2.17v2.84A11 11 0 0012 23z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 010-4.2V7.06H2.17a11 11 0 000 9.88l3.67-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 002.17 7.06l3.67 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
+            Continue with Google
+          </button>
+          <p class="alt-line">Don’t have an account?<a href="signup.html">Create account</a></p>
+          <div class="sec-note"><i data-i="shield-check"></i><span>Your documents remain protected through JURISAI’s security-first workflow.</span></div>
+        </form>
+      </section>
+
+      <!-- FORGOT -->
+      <section class="panel" data-view="forgot" aria-labelledby="t-forgot">
+        <div class="panel-head">
+          <h1 id="t-forgot">Reset your <em>password</em></h1>
+          <p>Enter the email for your account and we’ll send a secure reset link.</p>
+        </div>
+        <form class="form" id="forgot-form" novalidate>
+          <div class="field" data-f="femail">
+            <label for="femail">Email</label>
+            <div class="input-wrap"><input class="input" id="femail" type="email" autocomplete="email" placeholder="you@firm.com"></div>
+            <span class="field-msg">Enter a valid email address.</span>
+          </div>
+          <button class="btn btn-primary btn-block" type="submit" id="forgot-btn">
+            <span class="lbl-idle">Send reset link <i data-i="arrow-right" class="arr"></i></span>
+            <span class="lbl-load"><span class="spin"></span>Sending…</span>
+          </button>
+          <p class="alt-line"><a href="#" data-go="signin" style="margin:0">← Back to sign in</a></p>
+        </form>
+      </section>
+
+      <!-- FORGOT SENT -->
+      <section class="panel" data-view="forgot-sent" aria-labelledby="t-fsent">
+        <div class="status-view">
+          <div class="seal"><i data-i="mail"></i></div>
+          <h1 id="t-fsent">Check your <em>email</em></h1>
+          <p>A secure reset code has been issued for <b id="sent-to">your address</b>. It expires in 15 minutes.</p>
+          <div class="form" style="text-align:left;margin-top:18px">
+            <div class="field"><label for="reset-code">Reset code</label><input class="input" id="reset-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="6-digit code"></div>
+            <div class="field"><label for="reset-pw">New password</label><input class="input" id="reset-pw" type="password" autocomplete="new-password" placeholder="At least 10 characters"></div>
+            <button class="btn btn-primary btn-block" type="button" id="reset-btn">Set new password</button>
+          </div>
+          <div class="sec-note" style="text-align:left"><i data-i="lock"></i><span>For your security, accounts that do not exist receive the same reset response.</span></div>
+          <p class="resend">Need another code? <button type="button" id="forgot-resend">Resend code</button></p>
+          <a href="#" class="link-gold" data-go="signin">Back to sign in</a>
+        </div>
+      </section>
+
+      <!-- SUCCESS -->
+      <section class="panel" data-view="success" aria-labelledby="t-success">
+        <div class="status-view">
+          <div class="seal ok"><i data-i="shield-check"></i></div>
+          <h1 id="t-success">Welcome <em>back.</em></h1>
+          <p>Your session is verified. Opening your workspace…</p>
+          <div class="bar-load" aria-hidden="true"><i></i></div>
+          <span class="mono">SESSION ESTABLISHED</span>
+          <a class="btn btn-primary" href="app.html" style="margin-top:8px">Continue to workspace <i data-i="arrow-right" class="arr"></i></a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+
+<script src="assets/site.js"></script>
+<script src="assets/session.js"></script>
+<script src="assets/auth.js"></script>
+<script>
+  JurisAuth.initSignin({ redirect: 'app.html' });
+</script>
+</body>
+</html>

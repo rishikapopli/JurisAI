@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design system — JURISAI</title>
+<link rel="icon" href="assets/logo-mark.png">
+<link rel="stylesheet" href="assets/jurisai.css">
+<style>
+  .ds-hero { padding: 72px 0 40px; }
+  .ds-hero h1 { font-size: clamp(44px,6vw,80px); margin: 22px 0 18px; }
+  .ds-sec { padding: 56px 0; border-top: 1px solid var(--rule); }
+  .ds-sec > .wrap > h2 { font-family: var(--serif); font-size: 34px; font-weight: 500; color: var(--navy); margin-bottom: 8px; }
+  .ds-sec > .wrap > p.d { color: var(--slate); max-width: 64ch; margin-bottom: 32px; }
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px,1fr)); gap: 14px; }
+  .sw { border: 1px solid var(--rule); background: var(--paper); border-radius: var(--r); overflow: hidden; }
+  .sw i { display:block; height: 84px; border-bottom: 1px solid var(--rule); }
+  .sw div { padding: 10px 12px 12px; display:grid; gap: 1px; } .sw b { font-size: 13.5px; color: var(--navy); } .sw span { font-family: var(--mono); font-size: 11.5px; color: var(--slate); }
+  .row { display:flex; flex-wrap:wrap; gap: 14px; align-items:center; }
+  .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .spec { display:grid; gap: 22px; }
+  .spec > div { display:grid; grid-template-columns: 150px 1fr; gap: 24px; align-items: baseline; padding-bottom: 20px; border-bottom: 1px solid var(--rule); }
+  .spec .k { font-family: var(--mono); font-size: 11.5px; color: var(--slate); }
+  .icons { display:grid; grid-template-columns: repeat(auto-fill,minmax(110px,1fr)); gap: 10px; }
+  .icons div { border:1px solid var(--rule); background: var(--paper); padding: 16px 8px 12px; display:grid; justify-items:center; gap: 8px; border-radius: var(--r); color: var(--navy); }
+  .icons span { font-family: var(--mono); font-size: 10.5px; color: var(--slate); }
+  @media (max-width: 800px) { .grid2 { grid-template-columns: 1fr; } .spec > div { grid-template-columns: 1fr; gap: 6px; } }
+</style>
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="brand" href="index.html"><img class="mark" src="assets/logo-mark.png" alt=""><img class="word" src="assets/logo-wordmark.png" alt="JURISAI"></a>
+  <div class="nav-cta"><a class="signin" href="index.html">Landing</a><a class="btn btn-primary btn-sm" href="signup.html">Get Started <i data-i="arrow-right" class="arr" data-size="sm"></i></a></div>
+</div></header>
+
+<main>
+<section class="ds-hero"><div class="wrap">
+  <span class="eyebrow">Design system · v1.0</span>
+  <h1 class="display">Ivory, ink <em>&amp; gold.</em></h1>
+  <p class="lede">One visual language for the landing page, authentication and the authenticated JURISAI application. Everything lives in <span class="mono">assets/jurisai.css</span> as CSS variables.</p>
+</div></section>
+
+<section class="ds-sec"><div class="wrap">
+  <h2>Colour</h2><p class="d">Derived from the logo: warm parchment, deep navy ink, muted antique gold. Signal colours are muted and used only for status.</p>
+  <div class="swatches">
+    <div class="sw"><i style="background:#F6F1E6"></i><div><b>Ivory</b><span>--ivory #F6F1E6</span></div></div>
+    <div class="sw"><i style="background:#EFE8D8"></i><div><b>Ivory 2 (sunken)</b><span>--ivory-2 #EFE8D8</span></div></div>
+    <div class="sw"><i style="background:#FCFAF5"></i><div><b>Paper (raised)</b><span>--paper #FCFAF5</span></div></div>
+    <div class="sw"><i style="background:#FFFFFF"></i><div><b>White</b><span>--white #FFFFFF</span></div></div>
+    <div class="sw"><i style="background:#1B3454"></i><div><b>Navy (logo ink)</b><span>--navy #1B3454</span></div></div>
+    <div class="sw"><i style="background:#0F1E33"></i><div><b>Deep navy</b><span>--navy-deep #0F1E33</span></div></div>
+    <div class="sw"><i style="background:#A8863F"></i><div><b>Muted gold</b><span>--gold #A8863F</span></div></div>
+    <div class="sw"><i style="background:#D2B26A"></i><div><b>Gold light</b><span>--gold-light #D2B26A</span></div></div>
+    <div class="sw"><i style="background:#1F2328"></i><div><b>Charcoal</b><span>--charcoal #1F2328</span></div></div>
+    <div class="sw"><i style="background:#5B6676"></i><div><b>Muted slate</b><span>--slate #5B6676</span></div></div>
+    <div class="sw"><i style="background:#DDD4C0"></i><div><b>Hairline</b><span>--rule #DDD4C0</span></div></div>
+    <div class="sw"><i style="background:linear-gradient(90deg,#2F7D5B 33%,#B7791F 33% 66%,#A83232 66%)"></i><div><b>Signals</b><span>ok · warn · risk</span></div></div>
+  </div>
+</div></section>
+
+<section class="ds-sec"><div class="wrap">
+  <h2>Typography</h2><p class="d">Editorial serif for headlines and legal text; a clean humanist sans for interface; monospace only for security metadata.</p>
+  <div class="spec">
+    <div><span class="k">Display · Cormorant 500</span><span class="display" style="font-size:72px">Secure. <em>Verify.</em></span></div>
+    <div><span class="k">Heading · Cormorant 500</span><span class="h2">Understand legal language</span></div>
+    <div><span class="k">Title · Cormorant 600</span><span class="h3">Potential contradiction detected</span></div>
+    <div><span class="k">Body · Hanken Grotesk 400</span><span class="lede" style="max-width:60ch">Clause 11.2 lets either side end the contract with 30 days’ written notice. Each claim links to its source.</span></div>
+    <div><span class="k">Label · Hanken 600 caps</span><span class="label">Relevant legal source</span></div>
+    <div><span class="k">Mono · IBM Plex Mono</span><span class="mono">sha256:9f2c7a…e41a · 5 / 5 passed</span></div>
+  </div>
+</div></section>
+
+<section class="ds-sec"><div class="wrap">
+  <h2>Buttons &amp; chips</h2><p class="d">2px radius, hairline borders. Hover adds a gold underline rule rather than a glow.</p>
+  <div class="row" style="margin-bottom:22px">
+    <button class="btn btn-primary">Get Started <i data-i="arrow-right" class="arr"></i></button>
+    <button class="btn btn-secondary">Explore JURISAI</button>
+    <button class="btn btn-gold">Start Analyzing</button>
+    <button class="btn btn-primary btn-sm">Small</button>
+  </div>
+  <div class="row">
+    <span class="chip chip-ok"><span class="dot dot-ok"></span>Verified</span>
+    <span class="chip chip-warn"><span class="dot dot-warn"></span>Review required</span>
+    <span class="chip chip-risk"><span class="dot dot-risk"></span>Quarantined</span>
+    <span class="chip chip-gold">Masked for AI</span>
+    <span class="chip">Neutral citation</span>
+  </div>
+</div></section>
+
+<section class="ds-sec"><div class="wrap">
+  <h2>Fields &amp; cards</h2><p class="d">Flat white inputs, a gold focus rule, restrained error states. Cards carry a thin border and an optional 2px gold top rule.</p>
+  <div class="grid2">
+    <div style="display:grid;gap:16px">
+      <div class="field"><label for="d1">Email</label><input class="input" id="d1" placeholder="you@firm.com"></div>
+      <div class="field is-error"><label for="d2">Password</label><input class="input" id="d2" value="••••" type="password"><span class="field-msg">Enter your password.</span></div>
+      <label class="check"><input type="checkbox" checked>Keep me signed in on this device</label>
+    </div>
+    <div class="card card-top"><div class="card-head"><span class="label">Source reference</span><span class="chip chip-gold">Document</span></div><div class="card-body"><h4 class="h3">Employment_Contract.pdf</h4><p class="mono" style="color:var(--slate);margin:6px 0 14px">§11.2 · p.4</p><blockquote style="margin:0;padding-left:16px;border-left:2px solid var(--gold);font-family:var(--serif);font-style:italic;font-size:20px;color:var(--navy-deep)">Either party may terminate this Agreement upon thirty (30) days’ written notice…</blockquote></div></div>
+  </div>
+</div></section>
+
+<section class="ds-sec"><div class="wrap">
+  <h2>Icons &amp; motion</h2><p class="d">One 1.5px line set, 24px grid. Motion is slow and functional: a scan sweep, sequential checks, a pulsing gold status dot. Everything respects <span class="mono">prefers-reduced-motion</span>.</p>
+  <div class="icons" id="icons"></div>
+</div></section>
+</main>
+
+<script src="assets/site.js"></script>
+<script>
+  ['shield-check','lock','file','upload','scan','search','link','book','message','alert','layers','key','compare','globe','database','scales','mail','clock'].forEach(function (n) {
+    document.getElementById('icons').insertAdjacentHTML('beforeend', '<div><svg class="ico ico-lg"><use href="#i-' + n + '"/></svg><span>' + n + '</span></div>');
+  });
+</script>
+</body>
+</html>

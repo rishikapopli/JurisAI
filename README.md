@@ -60,28 +60,28 @@ JURISAI is a server-rendered vanilla JavaScript single-page app served by the Fa
 <div align="center">
 
 #### Landing Page
-<img src="assets/screenshots/landing.jpg" alt="JURISAI landing page" width="800"/>
+<img src="assets/screenshots/landingpage.jpeg" alt="JURISAI landing page" width="800"/>
 
 *Security-first, source-grounded legal intelligence.*
 
 ---
 
 #### Create Your Workspace
-<img src="assets/screenshots/signup.jpg" alt="JURISAI sign-up page" width="800"/>
+<img src="assets/screenshots/signin.jpeg" alt="JURISAI sign-up page" width="800"/>
 
 *Account registration with password strength guidance.*
 
 ---
 
 #### Home Dashboard
-<img src="assets/screenshots/home-dashboard.jpg" alt="JURISAI home dashboard" width="800"/>
+<img src="assets/screenshots/dashborad.jpeg" alt="JURISAI home dashboard" width="800"/>
 
 *Recent documents with their security-gate status (scanning, review required, verified, blocked) and open items requiring review.*
 
 ---
 
 #### Grounded AI Research
-<img src="assets/screenshots/ai-research.jpg" alt="JURISAI AI research view" width="800"/>
+<img src="assets/screenshots/AIResearch.jpeg" alt="JURISAI AI research view" width="800"/>
 
 *Answers with numbered citations to document evidence, labelled as document evidence, legal source, AI explanation, inference, or review required.*
 

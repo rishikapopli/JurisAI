@@ -30,7 +30,12 @@
      Drop any copies that older versions saved into settings so stale/hardcoded values can never resurface. */
   var PROFILE = ['name', 'email', 'role', 'org'], legacy = false;
   PROFILE.forEach(function (k) { if (k in J.settings) { delete J.settings[k]; legacy = true; } });
-  J.saveSettings = function () { J.store.set('settings', J.settings); };
+  J.saveSettings = function () {
+    J.store.set('settings', J.settings);
+    if (window.JurisAPI && window.JurisAPI.users && window.JurisAPI.users.saveSettings) {
+      window.JurisAPI.users.saveSettings(J.settings).catch(function () {});
+    }
+  };
   if (legacy) J.saveSettings();
   J.set = function (k, v) { J.settings[k] = v; J.saveSettings(); };
 
@@ -106,7 +111,8 @@
     'tag': '<path d="M3 12V4h8l10 10-8 8L3 12z"/><path d="M7.5 8h.01"/>',
     'type': '<path d="M5 6V4h14v2M12 4v16M9 20h6"/>',
     'sun': '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>',
-    'users': '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 2.9-6 6.5-6s6.5 2.5 6.5 6M16 5a3.5 3.5 0 010 7M18 14c2.2.6 3.5 2.6 3.5 5"/>'
+    'users': '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 2.9-6 6.5-6s6.5 2.5 6.5 6M16 5a3.5 3.5 0 010 7M18 14c2.2.6 3.5 2.6 3.5 5"/>',
+    'compare': '<path d="M8 4H5a1 1 0 00-1 1v14a1 1 0 001 1h3M16 4h3a1 1 0 011 1v14a1 1 0 01-1 1h-3M12 3v18"/>'
   };
   (function inject() {
     var s = '<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><defs>';
@@ -410,7 +416,13 @@
   J.requestJurisdiction = function () {
     J.ui.modal({ title: 'Request a jurisdiction', html: '<p class="muted">JURISAI only researches law it can ground in verified sources. Tell us which jurisdiction you need and we will notify you when coverage is added.</p><div class="field"><label for="rj">Jurisdiction</label><input class="input in-sm" id="rj" placeholder="e.g. Singapore, Canada (Ontario), Germany"></div>', foot: '<button class="btn btn-secondary btn-sm" data-act="modal-close">Cancel</button><button class="btn btn-primary btn-sm" data-act="rj-send">Send request</button>' });
   };
-  A['rj-send'] = function () { var v = ($('#rj') || {}).value; J.ui.closeModal(); J.toast(v ? 'Request logged for ' + esc(v) : 'Request logged'); };
+  A['rj-send'] = function () {
+    var v = ($('#rj') || {}).value;
+    if (v && window.JurisAPI && window.JurisAPI.legal) {
+      JurisAPI.legal.requestJurisdiction(v).catch(function () {});
+    }
+    J.ui.closeModal(); J.toast(v ? 'Request logged for ' + esc(v) : 'Request logged');
+  };
   A['jur-menu'] = function (el) { J.jurMenu(el); };
   A['lang-menu'] = function (el) { J.langMenu(el); };
   A['session-info'] = function (el) {
@@ -491,12 +503,12 @@
       '<button class="sb-collapse" data-act="sb-toggle" title="Collapse sidebar" aria-label="Collapse sidebar">' + I('sidebar', 'ico-sm') + '</button><button class="sb-x" data-act="sb-close" aria-label="Close menu">' + I('x') + '</button></div>' +
       '<nav class="sb-scroll">' + NAV.map(function (g) {
         return '<div class="sb-label"><span>' + g[0] + '</span></div>' + g[1].map(function (n) {
-          return '<a class="sb-item" data-nav="' + n[0] + '" href="#/' + n[0] + '" title="' + n[1] + '">' + I(n[2]) + '<span class="sb-text">' + n[1] + '</span>' + (n[0] === 'documents' ? '<span class="sb-count" id="sb-docs-n"></span>' : '') + '</a>';
+          return '<a class="sb-item" data-nav="' + n[0] + '" data-go="' + n[0] + '" href="#/' + n[0] + '" title="' + n[1] + '">' + I(n[2]) + '<span class="sb-text">' + n[1] + '</span>' + (n[0] === 'documents' ? '<span class="sb-count" id="sb-docs-n"></span>' : '') + '</a>';
         }).join('');
       }).join('') + '</nav>' +
-      '<a class="sb-gate" href="#/security" title="Security gateway"><span class="dot dot-ok pulse"></span><span class="sb-text"><b>Security gateway</b><small class="mono" id="sb-gate-n">online</small></span></a>' +
-      '<div class="sb-foot"><a class="sb-item" data-nav="settings" href="#/settings" title="Settings">' + I('sliders') + '<span class="sb-text">Settings</span></a>' +
-      '<a class="sb-item" data-nav="help" href="#/help" title="Help & Support">' + I('help') + '<span class="sb-text">Help &amp; Support</span></a>' +
+      '<a class="sb-gate" data-go="security" href="#/security" title="Security gateway"><span class="dot dot-ok pulse"></span><span class="sb-text"><b>Security gateway</b><small class="mono" id="sb-gate-n">online</small></span></a>' +
+      '<div class="sb-foot"><a class="sb-item" data-nav="settings" data-go="settings" href="#/settings" title="Settings">' + I('sliders') + '<span class="sb-text">Settings</span></a>' +
+      '<a class="sb-item" data-nav="help" data-go="help" href="#/help" title="Help & Support">' + I('help') + '<span class="sb-text">Help &amp; Support</span></a>' +
       '<button class="sb-user" data-act="profile" title="Profile"><span class="av" data-user="initials">' + esc(J.initials(J.userName())) + '</span><span class="sb-text"><b data-user="name">' + esc(J.userName()) + '</b><small data-user="role">' + esc(u.role) + '</small></span></button></div>' +
       '</aside><div class="main"><header class="topbar">' +
       '<button class="icon-btn sb-burger" data-act="sb-open" aria-label="Open menu">' + I('menu') + '</button>' +
@@ -532,6 +544,34 @@
     window.addEventListener('hashchange', function () { J.ui.closeDrawer(); J.ui.closeModal(); $('#app').classList.remove('sb-open'); J.render(); });
     window.addEventListener('offline', function () { J.chrome(J.route, J.views[J.route.name]); });
     window.addEventListener('online', function () { J.chrome(J.route, J.views[J.route.name]); });
+    if (window.JurisAPI) {
+      JurisAPI.users.getSettings().then(function (s) {
+        if (s) {
+          Object.assign(J.settings, s);
+          J.store.set('settings', J.settings);
+          J.chrome(J.route, J.views[J.route.name]);
+        }
+      }).catch(function () {});
+      JurisAPI.notifications.list().then(function (notifs) {
+        if (Array.isArray(notifs) && notifs.length) {
+          J.data.notifs = notifs.map(function (n) {
+            return {
+              id: n.id,
+              kind: n.kind || 'info',
+              icon: n.icon || 'bell',
+              title: n.title,
+              text: n.text,
+              at: new Date(n.created_at || n.at || Date.now()),
+              go: n.link || 'home',
+              read: !!n.read
+            };
+          });
+          var unread = J.data.notifs.some(function (n) { return !n.read; });
+          var dot = $('#bell-dot');
+          if (dot) dot.style.display = unread ? 'block' : 'none';
+        }
+      }).catch(function () {});
+    }
     J.render();
   };
 })();

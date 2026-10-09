@@ -36,7 +36,33 @@
         '<div class="act pad"><div class="act-main"><div class="act-bar"><label class="lib-search">' + I('search', 'ico-sm') + '<input id="act-q" type="search" placeholder="Search events, files or actors" value="' + esc(AC.q) + '" aria-label="Search events"></label><div class="tabs">' + FILTERS.map(function (f) { return '<button class="' + (AC.f === f[0] ? 'on' : '') + '" data-act="act-filter" data-f="' + f[0] + '">' + f[1] + ' <span class="n">' + cnt(f[0]) + '</span></button>'; }).join('') + '</div></div><div class="tl" id="tl">' + timeline() + '</div></div>' +
         '<aside class="act-side"><div class="k pane-k">Audit integrity</div><p class="muted">Events are append-only and retained for ' + J.settings.retention + ' months. Document hashes let you confirm a file has not changed since it was verified.</p><dl class="dl"><dt>Events recorded</dt><dd class="mono">' + all.length + '</dd><dt>Retention</dt><dd class="mono">' + J.settings.retention + ' months</dd><dt>Log status</dt><dd><span class="chip chip-ok">' + I('check', 'ico-xs') + 'Intact</span></dd></dl><div class="k pane-k">Legend</div><ul class="legend2"><li><i class="sev sev-high"></i>Blocked or contradictory</li><li><i class="sev sev-med"></i>Needs review</li><li><i class="dot dot-ok"></i>Verified</li></ul></aside></div>';
     },
-    mount: function () { $('#act-q').addEventListener('input', function (e) { AC.q = e.target.value; $('#tl').innerHTML = timeline(); }); }
+    mount: function () {
+      $('#act-q').addEventListener('input', function (e) { AC.q = e.target.value; $('#tl').innerHTML = timeline(); });
+      if (window.JurisAPI && window.JurisAPI.audit) {
+        JurisAPI.audit.events().then(function (evs) {
+          if (Array.isArray(evs) && evs.length) {
+            evs.forEach(function (be) {
+              var t = new Date(be.timestamp || be.t);
+              var exists = D.userEvents.some(function (x) { return x.title === be.title && Math.abs(x.t - t) < 1000; });
+              if (!exists) {
+                D.userEvents.unshift({
+                  t: t,
+                  type: be.type || be.action || 'analysis',
+                  title: be.title,
+                  obj: be.object_name || be.obj || '',
+                  doc: be.document_id || be.doc || null,
+                  go: be.route || be.go || 'activity',
+                  who: be.actor || be.who || 'You',
+                  meta: be.meta || ''
+                });
+              }
+            });
+            var el = $('#tl');
+            if (el) el.innerHTML = timeline();
+          }
+        }).catch(function () {});
+      }
+    }
   };
   A['act-filter'] = function (el) { AC.f = el.dataset.f; J.render(true); };
   A['act-clear'] = function () { AC.f = 'all'; AC.q = ''; J.render(true); };

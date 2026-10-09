@@ -66,21 +66,63 @@
     d.sec = 'verified'; d.scan[2] = ['Sensitive data inspection', 'pass', text]; d.scan[3] = ['Document verification', 'pass', 'Attested and released to Legal AI'];
     D.addEvent({ type: 'verify', title: 'Document verified', obj: d.name + ' · ' + how, doc: d.id, go: 'documents', who: 'You', meta: 'Sensitive data ' + (how === 'redacted' ? 'redacted' : 'acknowledged') });
   }
-  A['doc-redact'] = function (el) { var d = D.docById(el.dataset.id); setSens(d, '3 items redacted and masked before analysis', 'redacted'); J.ui.closeDrawer(); J.toast('Redacted and verified. Legal AI is now unlocked for ' + esc(d.name)); J.render(true); };
+  A['doc-redact'] = function (el) {
+    var id = el.dataset.id, d = D.docById(id);
+    if (window.JurisAPI && window.JurisAPI.security) {
+      JurisAPI.security.decision(id, 'redact').then(function () {
+        setSens(d, '3 items redacted and masked before analysis', 'redacted');
+        J.ui.closeDrawer(); J.toast('Redacted and verified. Legal AI is now unlocked for ' + esc(d.name)); J.render(true);
+      }).catch(function (err) { J.toast(err.message || 'Action failed', 'risk'); });
+    } else {
+      setSens(d, '3 items redacted and masked before analysis', 'redacted');
+      J.ui.closeDrawer(); J.toast('Redacted and verified. Legal AI is now unlocked for ' + esc(d.name)); J.render(true);
+    }
+  };
   A['doc-release'] = function (el) {
     var id = el.dataset.id, d = D.docById(id);
     J.ui.modal({ title: 'Release with acknowledgement', html: '<p class="muted">' + esc(d.name) + ' contains ' + (d.sensitive ? d.sensitive.length : 3) + ' sensitive identifiers. Releasing it lets Legal AI read them as part of the analysis. The decision is recorded in your audit log.</p><label class="check"><input type="checkbox" id="rel-ack"> I understand and confirm this document may be analysed with these identifiers present.</label>', foot: '<button class="btn btn-secondary btn-sm" data-act="modal-close">Cancel</button><button class="btn btn-primary btn-sm" data-act="doc-release-ok" data-id="' + id + '">Release to Legal AI</button>' });
   };
   A['doc-release-ok'] = function (el) {
     if (!$('#rel-ack').checked) { J.toast('Please confirm the acknowledgement first', 'warn'); return; }
-    var d = D.docById(el.dataset.id); setSens(d, '3 items acknowledged and released by you', 'acknowledged'); J.ui.closeModal(); J.ui.closeDrawer(); J.toast('Released. Legal AI is now unlocked for ' + esc(d.name)); J.render(true);
+    var id = el.dataset.id, d = D.docById(id);
+    if (window.JurisAPI && window.JurisAPI.security) {
+      JurisAPI.security.decision(id, 'release_acknowledged', true).then(function () {
+        setSens(d, '3 items acknowledged and released by you', 'acknowledged');
+        J.ui.closeModal(); J.ui.closeDrawer(); J.toast('Released. Legal AI is now unlocked for ' + esc(d.name)); J.render(true);
+      }).catch(function (err) { J.toast(err.message || 'Action failed', 'risk'); });
+    } else {
+      setSens(d, '3 items acknowledged and released by you', 'acknowledged');
+      J.ui.closeModal(); J.ui.closeDrawer(); J.toast('Released. Legal AI is now unlocked for ' + esc(d.name)); J.render(true);
+    }
   };
-  A['doc-hold'] = function () { J.ui.closeDrawer(); J.toast('Kept on hold. Legal AI stays locked for this file.', 'warn'); };
-  A['doc-manual'] = function (el) { var d = D.docById(el.dataset.id); D.addEvent({ type: 'review', title: 'Manual review requested', obj: d.name, doc: d.id, go: 'security', who: 'You', meta: 'Security team notified' }); J.ui.closeDrawer(); J.toast('Manual review requested. You will be notified of the outcome.'); };
+  A['doc-hold'] = function (el) {
+    var id = el && el.dataset ? el.dataset.id : null;
+    if (id && window.JurisAPI && window.JurisAPI.security) {
+      JurisAPI.security.decision(id, 'hold').catch(function () {});
+    }
+    J.ui.closeDrawer(); J.toast('Kept on hold. Legal AI stays locked for this file.', 'warn');
+  };
+  A['doc-manual'] = function (el) {
+    var id = el.dataset.id, d = D.docById(id);
+    if (window.JurisAPI && window.JurisAPI.security) {
+      JurisAPI.security.decision(id, 'manual_review').catch(function () {});
+    }
+    D.addEvent({ type: 'review', title: 'Manual review requested', obj: d.name, doc: d.id, go: 'security', who: 'You', meta: 'Security team notified' });
+    J.ui.closeDrawer(); J.toast('Manual review requested. You will be notified of the outcome.');
+  };
   A['scan-report'] = function (el) {
     var d = D.docById(el.dataset.doc) || { name: 'file', scan: [], sha: '—' };
-    var txt = 'JURISAI SECURITY SCAN REPORT\nFile: ' + d.name + '\nSHA-256: ' + d.sha + '\nGenerated: ' + new Date().toISOString() + '\n\n' + d.scan.map(function (c) { return c[0].toUpperCase() + ' — ' + c[1].toUpperCase() + '\n  ' + c[2]; }).join('\n') + '\n\nNothing enters Legal AI until it passes the security gate.\n';
-    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain' })); a.download = d.name.replace(/\.[^.]+$/, '') + '_scan_report.txt'; document.body.appendChild(a); a.click(); a.remove(); J.toast('Scan report downloaded');
+    if (window.JurisAPI && window.JurisAPI.security) {
+      JurisAPI.security.scanReport(el.dataset.doc).then(function (txt) {
+        var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain' })); a.download = d.name.replace(/\.[^.]+$/, '') + '_scan_report.txt'; document.body.appendChild(a); a.click(); a.remove(); J.toast('Scan report downloaded');
+      }).catch(function () {
+        var txt = 'JURISAI SECURITY SCAN REPORT\nFile: ' + d.name + '\nSHA-256: ' + d.sha + '\nGenerated: ' + new Date().toISOString() + '\n\n' + d.scan.map(function (c) { return c[0].toUpperCase() + ' — ' + c[1].toUpperCase() + '\n  ' + c[2]; }).join('\n') + '\n\nNothing enters Legal AI until it passes the security gate.\n';
+        var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain' })); a.download = d.name.replace(/\.[^.]+$/, '') + '_scan_report.txt'; document.body.appendChild(a); a.click(); a.remove(); J.toast('Scan report downloaded');
+      });
+    } else {
+      var txt = 'JURISAI SECURITY SCAN REPORT\nFile: ' + d.name + '\nSHA-256: ' + d.sha + '\nGenerated: ' + new Date().toISOString() + '\n\n' + d.scan.map(function (c) { return c[0].toUpperCase() + ' — ' + c[1].toUpperCase() + '\n  ' + c[2]; }).join('\n') + '\n\nNothing enters Legal AI until it passes the security gate.\n';
+      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain' })); a.download = d.name.replace(/\.[^.]+$/, '') + '_scan_report.txt'; document.body.appendChild(a); a.click(); a.remove(); J.toast('Scan report downloaded');
+    }
   };
 
   /* ---------- document drawer ---------- */
@@ -99,7 +141,7 @@
     if (d.sec === 'review' && d.sensitive) body += '<h3 class="dd-h">Sensitive items detected</h3><table class="tbl tbl-tight"><tbody>' + d.sensitive.map(function (s) { return '<tr><td>' + s.kind + '</td><td class="mono">' + s.val + '</td><td class="mono">p.' + s.page + '</td></tr>'; }).join('') + '</tbody></table><p class="field-hint">Values are masked here. JURISAI never shows full identifiers in the interface.</p>';
     var foot = '';
     if (d.sec === 'verified') foot = (d.archived ? '' : '<button class="btn btn-secondary btn-sm" data-go="compare?a=' + d.id + '">' + I('compare', 'ico-sm') + 'Compare</button><button class="btn btn-secondary btn-sm" data-go="research?doc=' + d.id + '">' + I('sparkle', 'ico-sm') + 'Ask</button>') + '<button class="btn btn-primary btn-sm" data-go="analyze/' + d.id + '">' + I('analyze', 'ico-sm') + (d.an === 'analyzed' ? 'Open analysis' : 'Analyze') + '</button>';
-    if (d.sec === 'review') foot = '<button class="btn btn-secondary btn-sm" data-act="doc-hold">Keep on hold</button><button class="btn btn-secondary btn-sm" data-act="doc-release" data-id="' + d.id + '">Release…</button><button class="btn btn-primary btn-sm" data-act="doc-redact" data-id="' + d.id + '">Redact &amp; verify</button>';
+    if (d.sec === 'review') foot = '<button class="btn btn-secondary btn-sm" data-act="doc-hold" data-id="' + d.id + '">Keep on hold</button><button class="btn btn-secondary btn-sm" data-act="doc-release" data-id="' + d.id + '">Release…</button><button class="btn btn-primary btn-sm" data-act="doc-redact" data-id="' + d.id + '">Redact &amp; verify</button>';
     if (d.sec === 'blocked') foot = '<button class="btn btn-secondary btn-sm" data-act="scan-report" data-doc="' + d.id + '">' + I('download', 'ico-sm') + 'Scan report</button><button class="btn btn-primary btn-sm" data-act="doc-manual" data-id="' + d.id + '">Request manual review</button>';
     if (d.sec === 'processing') foot = '<button class="btn btn-secondary btn-sm" data-go="documents/intake">View in secure intake</button>';
     J.ui.drawer({ kicker: 'Document', title: esc(d.name), html: body, foot: foot });
@@ -111,7 +153,15 @@
     var items = [{ label: 'Open details', icon: 'eye', fn: function () { A['doc-open']({ dataset: { id: d.id } }); } }];
     if (v) items.push({ label: 'Analyze', icon: 'analyze', fn: function () { J.go('analyze/' + d.id); } }, { label: 'Compare with…', icon: 'compare', fn: function () { J.go('compare?a=' + d.id); } }, { label: 'Generate report', icon: 'file', fn: function () { J.go('reports?doc=' + d.id); } });
     items.push({ label: 'Download scan report', icon: 'download', fn: function () { A['scan-report']({ dataset: { doc: d.id } }); } }, { divider: true },
-      { label: d.archived ? 'Restore from archive' : 'Archive', icon: 'archive', fn: function () { d.archived = !d.archived; J.toast(d.archived ? 'Archived ' + esc(d.name) : 'Restored ' + esc(d.name)); J.render(true); } },
+      { label: d.archived ? 'Restore from archive' : 'Archive', icon: 'archive', fn: function () {
+        var nxt = !d.archived;
+        var req = nxt ? (window.JurisAPI && JurisAPI.documents.archive(d.id)) : (window.JurisAPI && JurisAPI.documents.restore(d.id));
+        if (req) {
+          req.then(function () { d.archived = nxt; J.toast(d.archived ? 'Archived ' + esc(d.name) : 'Restored ' + esc(d.name)); J.render(true); }).catch(function () { d.archived = nxt; J.toast(d.archived ? 'Archived ' + esc(d.name) : 'Restored ' + esc(d.name)); J.render(true); });
+        } else {
+          d.archived = nxt; J.toast(d.archived ? 'Archived ' + esc(d.name) : 'Restored ' + esc(d.name)); J.render(true);
+        }
+      } },
       { label: 'Remove from library', icon: 'trash', danger: true, fn: function () { A['doc-delete']({ dataset: { id: d.id } }); } });
     J.ui.menu(el, items, { align: 'right', width: 230 });
   };
@@ -119,7 +169,23 @@
     var d = D.docById(el.dataset.id);
     J.ui.modal({ title: 'Remove from library?', html: '<p class="muted"><b>' + esc(d.name) + '</b> will be permanently removed together with its analysis. The audit log keeps a record that it existed.</p>', foot: '<button class="btn btn-secondary btn-sm" data-act="modal-close">Cancel</button><button class="btn btn-danger btn-sm" data-act="doc-delete-ok" data-id="' + d.id + '">Remove</button>' });
   };
-  A['doc-delete-ok'] = function (el) { var i = D.docs.findIndex(function (x) { return x.id === el.dataset.id; }); var n = D.docs[i].name; D.docs.splice(i, 1); J.ui.closeModal(); J.toast('Removed ' + esc(n)); J.render(true); };
+  A['doc-delete-ok'] = function (el) {
+    var id = el.dataset.id;
+    var i = D.docs.findIndex(function (x) { return x.id === id; });
+    var n = i >= 0 ? D.docs[i].name : 'Document';
+    if (window.JurisAPI && window.JurisAPI.documents) {
+      JurisAPI.documents.delete(id).then(function () {
+        if (i >= 0) D.docs.splice(i, 1);
+        J.ui.closeModal(); J.toast('Removed ' + esc(n)); J.render(true);
+      }).catch(function () {
+        if (i >= 0) D.docs.splice(i, 1);
+        J.ui.closeModal(); J.toast('Removed ' + esc(n)); J.render(true);
+      });
+    } else {
+      if (i >= 0) D.docs.splice(i, 1);
+      J.ui.closeModal(); J.toast('Removed ' + esc(n)); J.render(true);
+    }
+  };
 
   /* ======================= DOCUMENTS LIBRARY ======================= */
   var FILTERS = [['all', 'All'], ['verified', 'Verified'], ['review', 'Review required'], ['blocked', 'Blocked'], ['processing', 'Processing'], ['archived', 'Archived']];
@@ -153,6 +219,23 @@
     },
     mount: function () {
       $('#lib-q').addEventListener('input', function (e) { dState.q = e.target.value; $('#lib-rows').innerHTML = rows(dState.f, dState.q); });
+      if (window.JurisAPI && window.JurisAPI.documents) {
+        JurisAPI.documents.list().then(function (docs) {
+          if (Array.isArray(docs) && docs.length) {
+            docs.forEach(function (backendDoc) {
+              var existing = D.docById(backendDoc.id);
+              if (existing) {
+                Object.assign(existing, backendDoc);
+              } else {
+                backendDoc.uploaded = new Date(backendDoc.uploaded);
+                D.docs.unshift(backendDoc);
+              }
+            });
+            var tb = $('#lib-rows');
+            if (tb) tb.innerHTML = rows(dState.f, dState.q);
+          }
+        }).catch(function () {});
+      }
     }
   };
   A['docs-filter'] = function (el) { dState.f = el.dataset.f; J.render(true); };
@@ -167,7 +250,7 @@
   function sizeLabel(b) { return b > 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB'; }
   function addFiles(list) {
     list.forEach(function (f) {
-      queue.push({ name: f.name, size: f.size, outcome: f.outcome || D.evaluateFile(f.name), step: 0, done: false, doc: null });
+      queue.push({ name: f.name, size: f.size, file: f.file, outcome: f.outcome || D.evaluateFile(f.name), step: 0, done: false, doc: null });
     });
     active = queue.length - list.length; runNext();
   }
@@ -177,6 +260,27 @@
     var it = queue[idx]; it.running = true; active = idx;
     if (J.state.offline || !navigator.onLine) { it.done = true; it.running = false; it.outcome = 'network'; paint(); return; }
     paint();
+    if (it.file && window.JurisAPI && window.JurisAPI.documents) {
+      var uploadPromise = JurisAPI.documents.upload(it.file, J.settings.jur);
+      (function tick() {
+        if (it.step < 5) { it.step++; paint(); J.later(tick, 600); }
+      })();
+      uploadPromise.then(function (res) {
+        it.step = 6;
+        it.outcome = res.sec === 'quarantine' ? 'blocked' : res.sec;
+        it.doc = res;
+        var existing = D.docById(res.id);
+        if (!existing) D.docs.unshift(res);
+        finish(it);
+      }).catch(function (err) {
+        it.step = 6;
+        if (err.status === 415 || (err.message && err.message.includes('type'))) it.outcome = 'unsupported';
+        else if (err.status === 400 || (err.message && err.message.includes('corrupt'))) it.outcome = 'corrupt';
+        else it.outcome = 'network';
+        finish(it);
+      });
+      return;
+    }
     (function tick() {
       if (!$('#gate-host') && !$('#intake-queue')) { /* view left: finish instantly */ while (it.step < 6) it.step++; finish(it); return; }
       if (it.step < 6) { it.step++; paint(); J.later(tick, it.step === 3 ? 950 : 700); } else finish(it);
@@ -226,10 +330,10 @@
     },
     mount: function (host) {
       var inp = $('#file-in'), drop = $('#drop');
-      inp.addEventListener('change', function () { var fs = [].slice.call(inp.files).filter(function (f) { return !/^\./.test(f.name); }); if (fs.length) addFiles(fs.map(function (f) { return { name: f.name, size: f.size }; })); inp.value = ''; });
+      inp.addEventListener('change', function () { var fs = [].slice.call(inp.files).filter(function (f) { return !/^\./.test(f.name); }); if (fs.length) addFiles(fs.map(function (f) { return { name: f.name, size: f.size, file: f }; })); inp.value = ''; });
       ['dragenter', 'dragover'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('over'); }); });
       ['dragleave', 'drop'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove('over'); }); });
-      drop.addEventListener('drop', function (e) { var fs = [].slice.call(e.dataTransfer.files); if (fs.length) addFiles(fs.map(function (f) { return { name: f.name, size: f.size }; })); });
+      drop.addEventListener('drop', function (e) { var fs = [].slice.call(e.dataTransfer.files); if (fs.length) addFiles(fs.map(function (f) { return { name: f.name, size: f.size, file: f }; })); });
       drop.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); inp.click(); } });
       /* resume any running items */
       queue.forEach(function (q) { if (q.running) q.running = false; });

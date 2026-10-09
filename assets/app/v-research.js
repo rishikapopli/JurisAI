@@ -175,6 +175,42 @@
     paintTurns();
     if (J.state.offline || !navigator.onLine) { turn.state = 'network'; paintTurns(); return; }
     var h = $('#rs-ls-' + id); if (!h) return;
+    if (window.JurisAPI && window.JurisAPI.research) {
+      J.runSteps(h, 'Legal research', ['Identifying legal concept…', 'Checking jurisdiction…', 'Finding relevant sources…', 'Assembling evidence…'], 450, function () {});
+      JurisAPI.research.ask({ query: q, scope: R.scope, jurisdiction: J.settings.jur, include_law: R.law }).then(function (res) {
+        turn.state = 'done';
+        if (res && res.memo) {
+          turn.memo = res.memo_id || ('bm_' + id);
+          M[turn.memo] = res.memo;
+        } else if (res && res.answer) {
+          turn.memo = 'bm_' + id;
+          M[turn.memo] = {
+            docs: res.docs || R.scope,
+            q: q,
+            answer: Array.isArray(res.answer) ? res.answer : [{ t: res.answer }],
+            simple: res.simple || 'Summary in plain words.',
+            src: res.src || {},
+            law: res.law || [],
+            ground: res.ground || { level: 'High', n: 4, of: 4, inf: 0 },
+            follow: res.follow || []
+          };
+        }
+        if (turn.memo && !turn.missing) {
+          if (!D.threads.some(function (x) { return x.title === q; })) D.threads.unshift({ id: 's' + id, title: q, at: new Date(), memo: turn.memo });
+          var groundLevel = (M[turn.memo] && M[turn.memo].ground && M[turn.memo].ground.level) || 'High';
+          D.addEvent({ type: 'legal', title: 'Research question answered', obj: q, go: 'research?q=' + encodeURIComponent(q), who: 'JURISAI', meta: 'Grounding ' + groundLevel });
+        }
+        if ($('#rs-ths')) $('#rs-ths').innerHTML = threadsHTML(); paintTurns();
+      }).catch(function () {
+        turn.state = 'done';
+        if (memo && !turn.missing) {
+          if (!D.threads.some(function (x) { return x.title === q; })) D.threads.unshift({ id: 's' + id, title: q, at: new Date(), memo: memo });
+          D.addEvent({ type: 'legal', title: 'Research question answered', obj: q, go: 'research?q=' + encodeURIComponent(q), who: 'JURISAI', meta: 'Grounding ' + M[memo].ground.level });
+        }
+        if ($('#rs-ths')) $('#rs-ths').innerHTML = threadsHTML(); paintTurns();
+      });
+      return;
+    }
     J.runSteps(h, 'Legal research', ['Identifying legal concept…', 'Checking jurisdiction…', 'Finding relevant sources…', 'Assembling evidence…'], 480, function () {
       turn.state = 'done';
       if (memo && !turn.missing) {

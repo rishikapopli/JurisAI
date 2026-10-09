@@ -84,12 +84,50 @@
   };
   A['set-seg'] = function (el) { J.set(el.dataset.k, el.dataset.v); J.toast('Saved'); J.render(true); };
   A['set-play'] = function (el) { J.speak('This is how JURISAI will read explanations aloud, at your chosen speed.', 'Sample', el); };
-  A['set-revoke'] = function (el) { sessions = sessions.filter(function (s) { return s.id !== el.dataset.id; }); $('#sess').innerHTML = sess(); J.toast('Session signed out'); };
+  A['set-revoke'] = function (el) {
+    var id = el.dataset.id;
+    if (window.JurisAPI && window.JurisAPI.auth) {
+      JurisAPI.auth.revokeSession(id).catch(function () {});
+    }
+    sessions = sessions.filter(function (s) { return s.id !== id; });
+    $('#sess').innerHTML = sess();
+    J.toast('Session signed out');
+  };
   A['set-invite'] = function () { J.ui.modal({ title: 'Invite a colleague', html: '<p class="muted">They get their own secure workspace login. Documents are only shared when you share them.</p><div class="field"><label for="inv">Email</label><input class="input in-sm" id="inv" type="email" placeholder="colleague@firm.com"></div>', foot: '<button class="btn btn-secondary btn-sm" data-act="modal-close">Cancel</button><button class="btn btn-primary btn-sm" data-act="set-invite-ok">Send invitation</button>' }); };
-  A['set-invite-ok'] = function () { var v = $('#inv').value; if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) { J.toast('Enter a valid email address', 'warn'); return; } J.ui.closeModal(); J.toast('Invitation sent to ' + esc(v)); };
+  A['set-invite-ok'] = function () {
+    var v = $('#inv').value;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) { J.toast('Enter a valid email address', 'warn'); return; }
+    if (window.JurisAPI && window.JurisAPI.users) {
+      JurisAPI.users.inviteMember(v).catch(function () {});
+    }
+    J.ui.closeModal(); J.toast('Invitation sent to ' + esc(v));
+  };
   A['set-pw'] = function () { J.ui.modal({ title: 'Change password', html: '<div class="field"><label for="pw0">Current password</label><input class="input in-sm" id="pw0" type="password" autocomplete="current-password"></div><div class="field"><label for="pw1">New password</label><input class="input in-sm" id="pw1" type="password" autocomplete="new-password" placeholder="At least 10 characters"></div>', foot: '<button class="btn btn-secondary btn-sm" data-act="modal-close">Cancel</button><button class="btn btn-primary btn-sm" data-act="set-pw-ok">Update password</button>' }); };
-  A['set-pw-ok'] = function () { if (!$('#pw0').value || $('#pw1').value.length < 10) { J.toast('Enter your current password and a new one of 10+ characters', 'warn'); return; } J.ui.closeModal(); J.toast('Password updated. Other sessions were signed out.'); };
+  A['set-pw-ok'] = function () {
+    var pw0 = $('#pw0').value, pw1 = $('#pw1').value;
+    if (!pw0 || pw1.length < 10) { J.toast('Enter your current password and a new one of 10+ characters', 'warn'); return; }
+    if (window.JurisAPI && window.JurisAPI.auth) {
+      JurisAPI.auth.changePassword(pw0, pw1).then(function () {
+        J.ui.closeModal(); J.toast('Password updated. Other sessions were signed out.');
+      }).catch(function (err) {
+        J.toast(err.message || 'Password update failed', 'risk');
+      });
+    } else {
+      J.ui.closeModal(); J.toast('Password updated. Other sessions were signed out.');
+    }
+  };
   A['set-delete'] = function () { J.ui.modal({ title: 'Delete account?', html: '<div class="banner banner-risk">' + I('alert') + '<div>This permanently removes your workspace, documents and analysis. It cannot be undone.</div></div><div class="field"><label for="del">Type DELETE to confirm</label><input class="input in-sm" id="del" autocomplete="off"></div>', foot: '<button class="btn btn-secondary btn-sm" data-act="modal-close">Cancel</button><button class="btn btn-danger btn-sm" data-act="set-delete-ok">Delete account</button>' }); };
-  A['set-delete-ok'] = function () { if ($('#del').value !== 'DELETE') { J.toast('Type DELETE exactly to confirm', 'warn'); return; } J.ui.closeModal(); J.toast('Deletion is disabled in this preview', 'warn'); };
+  A['set-delete-ok'] = function () {
+    if ($('#del').value !== 'DELETE') { J.toast('Type DELETE exactly to confirm', 'warn'); return; }
+    if (window.JurisAPI && window.JurisAPI.users) {
+      JurisAPI.users.deleteAccount().then(function () {
+        location.href = 'signin.html';
+      }).catch(function (err) {
+        J.toast(err.message || 'Account deletion failed', 'risk');
+      });
+    } else {
+      J.ui.closeModal(); J.toast('Deletion is disabled in this preview', 'warn');
+    }
+  };
   A['set-export'] = function () { J.download('jurisai_data_export.json', JSON.stringify({ exported: new Date().toISOString(), profile: (function (u) { return { name: u.name, email: u.email, role: u.role, org: u.org }; })(J.user()), settings: J.settings, documents: D.docs.map(function (d) { return { name: d.name, type: d.type, security: d.sec, analysis: d.an, sha256: d.sha }; }), audit: D.activity().map(function (e) { return { at: e.t, event: e.title, object: e.obj }; }) }, null, 2), 'application/json'); J.toast('Data export downloaded'); };
 })();

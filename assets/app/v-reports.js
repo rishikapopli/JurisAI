@@ -117,10 +117,29 @@
       $('#rp-src').addEventListener('change', function (e) { P.sources = e.target.checked; J.render(true); });
     }
   };
-  function log(kind) { var m = build(); D.addEvent({ type: 'report', title: 'Report exported', obj: m.title + ' · ' + m.docs.map(function (x) { return x.name; }).join(' vs '), doc: m.docs[0].id, go: 'reports?type=' + P.type + '&doc=' + P.doc, who: 'You', meta: kind }); }
+  function log(kind) {
+    var m = build();
+    if (window.JurisAPI && window.JurisAPI.reports) {
+      JurisAPI.reports.create({
+        title: m.title,
+        report_type: P.type,
+        document_ids: m.docs.map(function (x) { return x.id; }),
+        format: kind === 'PDF' ? 'pdf' : kind === 'Markdown' ? 'markdown' : 'summary',
+        content_json: m
+      }).catch(function () {});
+    }
+    D.addEvent({ type: 'report', title: 'Report exported', obj: m.title + ' · ' + m.docs.map(function (x) { return x.name; }).join(' vs '), doc: m.docs[0].id, go: 'reports?type=' + P.type + '&doc=' + P.doc, who: 'You', meta: kind });
+  }
   A['rp-pdf'] = function () { log('PDF'); J.toast('Preparing PDF — choose “Save as PDF” in the print dialog'); setTimeout(function () { try { window.print(); } catch (e) {} }, 350); };
   A['rp-md'] = function () { var m = build(); log('Markdown'); J.download('JURISAI_' + m.title.replace(/\s+/g, '_') + '_' + m.id + '.md', md(m), 'text/markdown'); J.toast('Markdown downloaded'); };
   A['rp-listen'] = function (el) { var t = $('#rp-paper').innerText.replace(/\s+/g, ' '); J.speak(t.slice(0, 1200), 'Report', el); };
   A['rp-share'] = function () { var m = build(); J.ui.modal({ title: 'Share report', html: '<p class="muted">Anyone in your workspace with the link can open this report. Sharing is recorded in the audit log.</p><div class="field"><label for="rps">Link</label><input class="input in-sm" id="rps" readonly value="https://app.jurisai.example/r/' + m.id + '"></div>', foot: '<button class="btn btn-secondary btn-sm" data-act="modal-close">Close</button><button class="btn btn-primary btn-sm" data-act="rp-copy">' + I('copy', 'ico-sm') + 'Copy link</button>' }); };
-  A['rp-copy'] = function () { try { navigator.clipboard.writeText($('#rps').value); } catch (e) {} J.ui.closeModal(); J.toast('Report link copied'); log('Shared link'); };
+  A['rp-copy'] = function () {
+    var m = build();
+    if (window.JurisAPI && window.JurisAPI.reports) {
+      JurisAPI.reports.createShare('report', m.id).catch(function () {});
+    }
+    try { navigator.clipboard.writeText($('#rps').value); } catch (e) {}
+    J.ui.closeModal(); J.toast('Report link copied'); log('Shared link');
+  };
 })();

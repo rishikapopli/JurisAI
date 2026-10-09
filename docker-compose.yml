@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jurisai_api
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - DEBUG=true
+      - SECRET_KEY=jurisai-production-super-secret-key-32-chars-min
+      - DATABASE_URL=postgresql+asyncpg://jurisai:jurisai_password@postgres:5432/jurisai_db
+      - REDIS_URL=redis://redis:6379/0
+      - SMTP_HOST=mailpit
+      - SMTP_PORT=1025
+      - SMTP_TLS=false
+      - EMAIL_FROM=no-reply@jurisai.com
+      - STORAGE_BACKEND=local
+      - LOCAL_STORAGE_PATH=/app/data/storage
+      - LLM_PROVIDER=ollama
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - OLLAMA_MODEL=llama3.2
+      - EMBEDDING_PROVIDER=local
+    volumes:
+      - jurisai_data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      mailpit:
+        condition: service_started
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: jurisai_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=jurisai
+      - POSTGRES_PASSWORD=jurisai_password
+      - POSTGRES_DB=jurisai_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jurisai -d jurisai_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: jurisai_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: jurisai_mailpit
+    ports:
+      - "1025:1025"   # SMTP port
+      - "8025:8025"   # Webmail UI
+    environment:
+      - MP_MAX_MESSAGES=5000
+      - MP_DATABASE=/data/mailpit.db
+    volumes:
+      - mailpitdata:/data
+
+  minio:
+    image: minio/minio:latest
+    container_name: jurisai_minio
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # Web Console
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - miniodata:/data
+
+volumes:
+  jurisai_data:
+  pgdata:
+  redisdata:
+  mailpitdata:
+  miniodata:

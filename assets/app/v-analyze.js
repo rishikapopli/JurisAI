@@ -133,10 +133,24 @@
       var d = D.docById(r.arg); if (!d) return;
       if (d.sec === 'verified' && (d.an === 'pending' || d.an === 'running')) {
         d.an = 'running'; var h = $('#an-run');
-        J.runSteps(h, 'Document analysis', ['Extracting structure…', 'Identifying clauses…', 'Building document map…', 'Preparing explanations…'], 750, function () {
-          J.ensureContent(d); d.an = 'analyzed'; D.addEvent({ type: 'analysis', title: 'Analysis completed', obj: d.name, doc: d.id, go: 'analyze/' + d.id, who: 'JURISAI', meta: d.content.clauses.length + ' sections mapped' });
-          J.later(function () { J.render(true); }, 300);
-        });
+        if (window.JurisAPI && window.JurisAPI.analysis) {
+          J.runSteps(h, 'Document analysis', ['Extracting structure…', 'Identifying clauses…', 'Building document map…', 'Preparing explanations…'], 700, function () {});
+          JurisAPI.analysis.run(d.id).then(function (anData) {
+            d.content = anData.content || anData;
+            d.an = 'analyzed';
+            D.addEvent({ type: 'analysis', title: 'Analysis completed', obj: d.name, doc: d.id, go: 'analyze/' + d.id, who: 'JURISAI', meta: (d.content.clauses || []).length + ' sections mapped' });
+            J.later(function () { J.render(true); }, 200);
+          }).catch(function () {
+            J.ensureContent(d); d.an = 'analyzed';
+            D.addEvent({ type: 'analysis', title: 'Analysis completed', obj: d.name, doc: d.id, go: 'analyze/' + d.id, who: 'JURISAI', meta: d.content.clauses.length + ' sections mapped' });
+            J.later(function () { J.render(true); }, 200);
+          });
+        } else {
+          J.runSteps(h, 'Document analysis', ['Extracting structure…', 'Identifying clauses…', 'Building document map…', 'Preparing explanations…'], 750, function () {
+            J.ensureContent(d); d.an = 'analyzed'; D.addEvent({ type: 'analysis', title: 'Analysis completed', obj: d.name, doc: d.id, go: 'analyze/' + d.id, who: 'JURISAI', meta: d.content.clauses.length + ' sections mapped' });
+            J.later(function () { J.render(true); }, 300);
+          });
+        }
         D.addEvent({ type: 'analysis', title: 'Analysis started', obj: d.name, doc: d.id, go: 'analyze/' + d.id, who: 'JURISAI', meta: '' });
         return;
       }
@@ -191,12 +205,33 @@
     var d = R(), url = location.origin === 'null' || location.protocol === 'file:' ? 'https://app.jurisai.example/d/' + d.id : location.origin + location.pathname + '#/analyze/' + d.id;
     J.ui.modal({ title: 'Share ' + esc(d.name), html: '<p class="muted">Share a read-only view of this analysis with people in your workspace. The original file is only shared if you choose to.</p><div class="field"><label for="sh-l">Link</label><div class="input-wrap"><input class="input in-sm" id="sh-l" readonly value="' + esc(url) + '"></div></div><div class="field"><label for="sh-p">Access</label><select class="input in-sm" id="sh-p"><option>Workspace members — view analysis only</option><option>Workspace members — view analysis and document</option></select></div>', foot: '<button class="btn btn-secondary btn-sm" data-act="modal-close">Close</button><button class="btn btn-primary btn-sm" data-act="share-copy">' + I('copy', 'ico-sm') + 'Copy link</button>' });
   };
-  A['share-copy'] = function () { try { navigator.clipboard.writeText($('#sh-l').value); } catch (e) {} J.ui.closeModal(); J.toast('Link copied. Sharing is recorded in the audit log.'); D.addEvent({ type: 'report', title: 'Analysis shared', obj: R().name, doc: R().id, go: 'analyze/' + R().id, who: 'You', meta: 'Workspace link' }); };
+  A['share-copy'] = function () {
+    var d = R();
+    if (window.JurisAPI && window.JurisAPI.reports) {
+      JurisAPI.reports.createShare('analysis', d.id).catch(function () {});
+    }
+    try { navigator.clipboard.writeText($('#sh-l').value); } catch (e) {}
+    J.ui.closeModal(); J.toast('Link copied. Sharing is recorded in the audit log.');
+    D.addEvent({ type: 'report', title: 'Analysis shared', obj: d.name, doc: d.id, go: 'analyze/' + d.id, who: 'You', meta: 'Workspace link' });
+  };
   A['an-more'] = function (el) {
     var d = R();
     J.ui.menu(el, [{ label: 'Compare with another document', icon: 'compare', fn: function () { J.go('compare?a=' + d.id); } }, { label: 'Open legal context', icon: 'scales', fn: function () { J.go('law?doc=' + d.id); } }, { label: 'Ask JURISAI about this document', icon: 'sparkle', fn: function () { J.go('research?doc=' + d.id); } }, { label: 'Generate report', icon: 'file', fn: function () { J.go('reports?doc=' + d.id); } }, { divider: true }, { label: 'Security details', icon: 'shield-check', fn: function () { A['doc-open']({ dataset: { id: d.id } }); } }], { align: 'right', width: 280 });
   };
   A['retry-analysis'] = function (el) {
-    var d = D.docById(el.dataset.doc); d.content = d.content || D.msaContent; d.an = 'pending'; J.toast('Retrying with OCR'); J.render();
+    var id = el.dataset.doc;
+    var d = D.docById(id);
+    if (window.JurisAPI && window.JurisAPI.analysis) {
+      JurisAPI.analysis.retry(id, { ocr: true, msa: true }).then(function (res) {
+        if (d) { d.content = res.content || res; d.an = 'analyzed'; }
+        J.toast('Analysis retried with OCR'); J.render(true);
+      }).catch(function () {
+        if (d) { d.content = d.content || D.msaContent; d.an = 'pending'; }
+        J.toast('Retrying with OCR'); J.render();
+      });
+    } else {
+      if (d) { d.content = d.content || D.msaContent; d.an = 'pending'; }
+      J.toast('Retrying with OCR'); J.render();
+    }
   };
 })();

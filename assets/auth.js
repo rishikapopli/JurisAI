@@ -57,7 +57,14 @@ window.JurisAuth = (function () {
     var form = $('#signin-form'), btn = $('#signin-btn'), alertEl = $('#signin-alert');
     var email = $('#email'), pw = $('#password');
 
-    function fail() { alertEl.classList.remove('on'); void alertEl.offsetWidth; alertEl.classList.add('on'); session('fail'); btnState(btn, 'idle'); lock(form, false); setErr(email.closest('.field'), true); setErr(pw.closest('.field'), true); $$('.field-msg', form).forEach(function (m) { m.textContent = ''; }); }
+    function fail(msg) {
+      alertEl.classList.remove('on'); void alertEl.offsetWidth; alertEl.classList.add('on'); session('fail'); btnState(btn, 'idle'); lock(form, false); setErr(email.closest('.field'), true); setErr(pw.closest('.field'), true);
+      if (msg) {
+        var span = $('span', alertEl);
+        if (span) span.innerHTML = '<b>We couldn’t sign you in.</b> ' + J.esc(msg);
+      }
+      $$('.field-msg', form).forEach(function (m) { m.textContent = ''; });
+    }
     function win() { btnState(btn, 'done'); session('ok'); setTimeout(function () { show('success'); if (opts.redirect) setTimeout(function () { location.href = opts.redirect; }, 1800); }, 700); }
 
     form.addEventListener('submit', function (e) {
@@ -68,8 +75,17 @@ window.JurisAuth = (function () {
       setErr(email.closest('.field'), !okE); setErr(pw.closest('.field'), !okP);
       if (!okE || !okP) { (okE ? pw : email).focus(); return; }
       btnState(btn, 'loading'); session('busy'); lock(form, true);
-      var bad = /^(wrong|invalid)$/i.test(pw.value);
-      fakeRequest(!bad, 1500).then(function () { lock(form, false); if (window.JurisSession) JurisSession.signIn(email.value.trim()); win(); }, fail);
+
+      var rem = ($('[name=remember]', form) || {}).checked !== false;
+      var apiCall = window.JurisAPI ? JurisAPI.auth.login(email.value.trim(), pw.value, rem) : fakeRequest(!/^(wrong|invalid)$/i.test(pw.value), 1200);
+
+      apiCall.then(function (res) {
+        lock(form, false);
+        if (window.JurisSession) JurisSession.signIn(email.value.trim(), pw.value, rem);
+        win();
+      }).catch(function (err) {
+        fail(err && (err.message || (err.detail && err.detail.message)));
+      });
     });
 
     $('#google-btn').addEventListener('click', function () { session('busy'); var b = this; b.disabled = true; b.innerHTML = '<span class="spin"></span>Redirecting to Google…'; });
@@ -80,9 +96,13 @@ window.JurisAuth = (function () {
       e.preventDefault();
       var ok = EMAIL.test(fEmail.value.trim()); setErr(fEmail.closest('.field'), !ok); if (!ok) { fEmail.focus(); return; }
       btnState(fBtn, 'loading');
-      fakeRequest(true, 1100).then(function () { btnState(fBtn, 'idle'); $('#sent-to').textContent = fEmail.value.trim(); show('forgot-sent'); });
+      var p = window.JurisAPI ? JurisAPI.auth.forgotPassword(fEmail.value.trim()) : fakeRequest(true, 1100);
+      p.then(function () { btnState(fBtn, 'idle'); $('#sent-to').textContent = fEmail.value.trim(); show('forgot-sent'); });
     });
-    $('#forgot-resend').addEventListener('click', function () { var b = this; b.textContent = 'Link sent again ✓'; b.disabled = true; setTimeout(function () { b.textContent = 'Resend link'; b.disabled = false; }, 4000); });
+    $('#forgot-resend').addEventListener('click', function () {
+      if (window.JurisAPI && fEmail.value) JurisAPI.auth.forgotPassword(fEmail.value.trim());
+      var b = this; b.textContent = 'Link sent again ✓'; b.disabled = true; setTimeout(function () { b.textContent = 'Resend link'; b.disabled = false; }, 4000);
+    });
     $$('[data-go="forgot"]').forEach(function (a) { a.addEventListener('click', function () { if (email.value) fEmail.value = email.value; }); });
 
     // preview states
@@ -133,7 +153,26 @@ window.JurisAuth = (function () {
       var r = validate(), bad = ['name', 'email', 'pw', 'confirm', 'terms'].filter(function (k) { return !r[k]; });
       if (bad.length) { f[bad[0]].focus(); return; }
       btnState(btn, 'loading');
-      fakeRequest(true, 1500).then(function () { btnState(btn, 'idle'); $('#verify-to').textContent = f.email.value.trim(); show('verify'); startResend(); });
+
+      var orgVal = ($('#org') ? $('#org').value : '').trim();
+      var regCall = window.JurisAPI ? JurisAPI.auth.register({
+        name: f.name.value.trim(),
+        email: f.email.value.trim(),
+        password: f.pw.value,
+        org: orgVal
+      }) : fakeRequest(true, 1200);
+
+      regCall.then(function () {
+        btnState(btn, 'idle');
+        $('#verify-to').textContent = f.email.value.trim();
+        show('verify');
+        startResend();
+      }).catch(function (err) {
+        btnState(btn, 'idle');
+        alertEl.classList.add('on');
+        var sp = $('span', alertEl);
+        if (sp) sp.innerHTML = '<b>Account creation failed.</b> ' + J.esc(err && err.message ? err.message : 'Please check your information.');
+      });
     });
     $('#google-btn').addEventListener('click', function () { var b = this; b.disabled = true; b.innerHTML = '<span class="spin"></span>Redirecting to Google…'; });
 
@@ -156,12 +195,26 @@ window.JurisAuth = (function () {
         if (t.length === 6) vForm.requestSubmit();
       });
     });
-    function badCode() { code.classList.remove('err'); void code.offsetWidth; code.classList.add('err'); vAlert.classList.remove('on'); void vAlert.offsetWidth; vAlert.classList.add('on'); btnState(vBtn, 'idle'); ins.forEach(function (x) { x.disabled = false; }); ins[0].focus(); }
+    function badCode(msg) {
+      code.classList.remove('err'); void code.offsetWidth; code.classList.add('err');
+      vAlert.classList.remove('on'); void vAlert.offsetWidth; vAlert.classList.add('on');
+      if (msg) { var sp = $('span', vAlert); if (sp) sp.textContent = msg; }
+      btnState(vBtn, 'idle'); ins.forEach(function (x) { x.disabled = false; }); ins[0].focus();
+    }
     vForm.addEventListener('submit', function (e) {
       e.preventDefault(); var v = ins.map(function (x) { return x.value; }).join('');
       if (v.length < 6) { badCode(); return; }
       btnState(vBtn, 'loading'); ins.forEach(function (x) { x.disabled = true; });
-      fakeRequest(v !== '000000', 1200).then(function () { btnState(vBtn, 'idle'); ins.forEach(function (x) { x.disabled = false; }); if (window.JurisSession) JurisSession.register({ name: f.name.value, email: f.email.value }); show('created'); }, badCode);
+
+      var vCall = window.JurisAPI ? JurisAPI.auth.verifyEmail(f.email.value.trim(), v) : fakeRequest(v !== '000000', 1200);
+      vCall.then(function (res) {
+        btnState(vBtn, 'idle');
+        ins.forEach(function (x) { x.disabled = false; });
+        if (window.JurisSession) JurisSession.signIn(f.email.value.trim(), f.pw.value);
+        show('created');
+      }).catch(function (err) {
+        badCode(err && err.message ? err.message : null);
+      });
     });
 
     var rt, left = 0, rBtn = $('#resend'), rTxt = $('#resend-t');
@@ -170,7 +223,11 @@ window.JurisAuth = (function () {
       rTxt.textContent = 'Resend code in 30s';
       rt = setInterval(function () { left--; if (left <= 0) { clearInterval(rt); rTxt.style.display = 'none'; rBtn.style.display = ''; rBtn.disabled = false; } else rTxt.textContent = 'Resend code in ' + left + 's'; }, 1000);
     }
-    rBtn.addEventListener('click', function () { startResend(); rTxt.textContent = 'New code sent · resend in 30s'; });
+    rBtn.addEventListener('click', function () {
+      if (window.JurisAPI) JurisAPI.auth.resendVerification(f.email.value.trim());
+      startResend();
+      rTxt.textContent = 'New code sent · resend in 30s';
+    });
     rBtn.style.display = 'none';
 
     /* preview states */

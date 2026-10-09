@@ -16,6 +16,7 @@
 </head>
 <body>
 <script src="assets/site.js"></script>
+<script src="assets/api.js"></script>
 <script src="assets/session.js"></script>
 <script src="assets/app/core.js"></script>
 <script src="assets/app/data.js"></script>
@@ -30,6 +31,17 @@
 <script src="assets/app/v-settings.js"></script>
 <script src="assets/app/v-help.js"></script>
 <script src="assets/app/v-welcome.js"></script>
-<script>J.boot();</script>
+<script>
+  if (window.JurisAPI) {
+    JurisAPI.users.me().then(function(u) {
+      if (window.JurisSession) JurisSession.update(u);
+      J.boot();
+    }).catch(function() {
+      location.href = 'signin.html';
+    });
+  } else {
+    J.boot();
+  }
+</script>
 </body>
 </html>

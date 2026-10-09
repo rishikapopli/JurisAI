@@ -41,11 +41,26 @@
   }
   A['help-cat'] = function (el) { Hs.cat = el.dataset.c; Hs.q = ''; location.hash.indexOf('/help/') > 0 ? J.go('help') : J.render(true); };
   A['help-clear'] = function () { Hs.q = ''; Hs.cat = ''; J.render(true); };
-  A['help-fb'] = function (el) { J.toast(el.dataset.v === 'yes' ? 'Thanks — glad it helped' : 'Thanks. We will improve this article.'); };
+  A['help-fb'] = function (el) {
+    if (window.JurisAPI && window.JurisAPI.post) {
+      var artEl = el.closest('.hp-art');
+      var artTitle = artEl ? (artEl.querySelector('h1') || {}).innerText : 'Help article';
+      JurisAPI.post('/help/feedback', { helpful: el.dataset.v === 'yes', article_title: artTitle }).catch(function () {});
+    }
+    J.toast(el.dataset.v === 'yes' ? 'Thanks — glad it helped' : 'Thanks. We will improve this article.');
+  };
   A['help-contact'] = function () {
     J.ui.drawer({ kicker: 'Support', title: 'Contact support', html: '<p class="muted">Tell us what happened. Please do not paste confidential document text — we can see audit details without it.</p><div class="field"><label for="sp-s">Topic</label><select class="input in-sm" id="sp-s">' + D.helpCats.map(function (c) { return '<option>' + c[1] + '</option>'; }).join('') + '</select></div><div class="field"><label for="sp-m">Message</label><textarea class="input" id="sp-m" rows="6" placeholder="What were you trying to do?"></textarea></div>', foot: '<button class="btn btn-secondary btn-sm" data-act="drawer-close">Cancel</button><button class="btn btn-primary btn-sm" data-act="help-send">Send message</button>' });
   };
-  A['help-send'] = function () { if (!$('#sp-m').value.trim()) { J.toast('Please describe the problem first', 'warn'); return; } J.ui.closeDrawer(); J.toast('Message sent. We reply within one business day.'); };
+  A['help-send'] = function () {
+    var msg = ($('#sp-m') || {}).value;
+    if (!msg || !msg.trim()) { J.toast('Please describe the problem first', 'warn'); return; }
+    var topic = ($('#sp-s') || {}).value || 'General';
+    if (window.JurisAPI && window.JurisAPI.post) {
+      JurisAPI.post('/help/tickets', { topic: topic, message: msg.trim() }).catch(function () {});
+    }
+    J.ui.closeDrawer(); J.toast('Message sent. We reply within one business day.');
+  };
 
   /* ---------- Interface states ---------- */
   J.views.states = {

@@ -67,6 +67,28 @@
     var key = d.id + ':' + L.c + ':' + J.settings.jur;
     if (L.done[key]) return;
     var h = $('#law-ls'); if (!h) return;
+    if (window.JurisAPI && window.JurisAPI.legal) {
+      J.runSteps(h, 'Legal research', ['Identifying legal concept…', 'Checking jurisdiction…', 'Finding relevant sources…'], 350, function () {});
+      JurisAPI.legal.context(d.id, L.c, J.settings.jur).then(function (res) {
+        L.done[key] = true;
+        if (res && res.concept) {
+          if (!D.law[d.id + ':' + L.c]) D.law[d.id + ':' + L.c] = {};
+          D.law[d.id + ':' + L.c][J.settings.jur] = res;
+        }
+        if ($('#ld')) {
+          $('#ld').innerHTML = detail(d, L.c);
+          var info = J.refInfo(d.id + ':' + L.c);
+          D.addEvent({ type: 'legal', title: 'Legal context researched', obj: '§' + L.c + ' ' + (info ? info.clause.title : 'Clause') + ' · ' + J.jurName(J.settings.jur), doc: d.id, go: 'law?doc=' + d.id + '&c=' + L.c, who: 'JURISAI', meta: 'Review required' });
+        }
+      }).catch(function () {
+        L.done[key] = true;
+        if ($('#ld')) {
+          $('#ld').innerHTML = detail(d, L.c);
+          D.addEvent({ type: 'legal', title: 'Legal context researched', obj: '§' + L.c + ' ' + J.refInfo(d.id + ':' + L.c).clause.title + ' · ' + J.jurName(J.settings.jur), doc: d.id, go: 'law?doc=' + d.id + '&c=' + L.c, who: 'JURISAI', meta: 'Review required' });
+        }
+      });
+      return;
+    }
     J.runSteps(h, 'Legal research', ['Identifying legal concept…', 'Checking jurisdiction…', 'Finding relevant sources…'], 420, function () { L.done[key] = true; if ($('#ld')) { $('#ld').innerHTML = detail(d, L.c); D.addEvent({ type: 'legal', title: 'Legal context researched', obj: '§' + L.c + ' ' + J.refInfo(d.id + ':' + L.c).clause.title + ' · ' + J.jurName(J.settings.jur), doc: d.id, go: 'law?doc=' + d.id + '&c=' + L.c, who: 'JURISAI', meta: 'Review required' }); } });
   }
   A['law-pick'] = function (el) { L.c = el.dataset.c; var d = D.docById(L.doc); $('#ll').innerHTML = listHTML(d); $('#ld').innerHTML = detail(d, L.c); reveal(d); $('#ld').scrollTop = 0; };

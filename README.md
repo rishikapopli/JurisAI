@@ -316,11 +316,27 @@ The end-to-end suite covers authentication, the security gate (including blocked
 
 ## Contributing
 
-Contributions are welcome. Fork the repository, create a feature branch, run the tests, and open a pull request describing your change.
+Contributions to JURISAI are welcome! If you'd like to improve the project, fix bugs, or introduce new features, please follow these steps:
+
+Fork the repository.
+
+Create a feature branch for your changes.
+
+Make your changes and test them thoroughly.
+
+Commit your changes with a clear commit message.
+
+Open a pull request describing your changes.
+
+Please ensure your contributions align with the project's goals and maintain its security and code quality standards.
 
 ## License
 
-No license has been specified yet. Add a `LICENSE` file before reuse or redistribution.
+JURISAI is licensed under the MIT License.
+
+You are free to use, modify, and distribute this software in accordance with the terms of the licence. See the LICENSE file for details.
+
+Copyright © 2026 Rishika Popli.
 
 ## Acknowledgements
 

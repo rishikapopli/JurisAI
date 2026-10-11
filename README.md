@@ -195,8 +195,8 @@ flowchart TD
 ### Quick Start
 
 ```bash
-git clone <your-repo-url>
-cd <repo-directory>
+git clone https://github.com/rishikapopli/JurisAI
+cd jurisai
 
 python3.12 -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate

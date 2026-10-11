@@ -196,7 +196,7 @@ flowchart TD
 
 ```bash
 git clone https://github.com/rishikapopli/JurisAI
-cd jurisai
+cd JurisAI
 
 python3.12 -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate

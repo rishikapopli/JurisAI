@@ -36,7 +36,16 @@
         '<div class="act pad"><div class="act-main"><div class="act-bar"><label class="lib-search">' + I('search', 'ico-sm') + '<input id="act-q" type="search" placeholder="Search events, files or actors" value="' + esc(AC.q) + '" aria-label="Search events"></label><div class="tabs">' + FILTERS.map(function (f) { return '<button class="' + (AC.f === f[0] ? 'on' : '') + '" data-act="act-filter" data-f="' + f[0] + '">' + f[1] + ' <span class="n">' + cnt(f[0]) + '</span></button>'; }).join('') + '</div></div><div class="tl" id="tl">' + timeline() + '</div></div>' +
         '<aside class="act-side"><div class="k pane-k">Audit integrity</div><p class="muted">Events are append-only and retained for ' + J.settings.retention + ' months. Document hashes let you confirm a file has not changed since it was verified.</p><dl class="dl"><dt>Events recorded</dt><dd class="mono">' + all.length + '</dd><dt>Retention</dt><dd class="mono">' + J.settings.retention + ' months</dd><dt>Log status</dt><dd><span class="chip chip-ok">' + I('check', 'ico-xs') + 'Intact</span></dd></dl><div class="k pane-k">Legend</div><ul class="legend2"><li><i class="sev sev-high"></i>Blocked or contradictory</li><li><i class="sev sev-med"></i>Needs review</li><li><i class="dot dot-ok"></i>Verified</li></ul></aside></div>';
     },
-    mount: function () { $('#act-q').addEventListener('input', function (e) { AC.q = e.target.value; $('#tl').innerHTML = timeline(); }); }
+    mount: function () {
+      var q = $('#act-q');
+      if (q) {
+        q.addEventListener('input', function (e) {
+          AC.q = e.target.value;
+          var tl = $('#tl');
+          if (tl) tl.innerHTML = timeline();
+        });
+      }
+    }
   };
   A['act-filter'] = function (el) { AC.f = el.dataset.f; J.render(true); };
   A['act-clear'] = function () { AC.f = 'all'; AC.q = ''; J.render(true); };
@@ -50,8 +59,11 @@
   J.views.security = {
     title: 'Security', fixed: false, crumbs: function () { return ['Security Center']; },
     render: function () {
-      var rows=D.docs.map(function(d){return '<tr><td>'+esc(d.name)+'</td><td>'+esc(d.scan&&d.scan[2]?d.scan[2][2]:'No scanner result recorded.')+'</td><td class="mono">'+esc(d.sha||'')+'</td></tr>';}).join('');
-      return '<header class="ph"><div><div class="kicker">Workspace</div><h1>Security <em>Center</em></h1><p class="sub">Only checks that actually ran are shown.</p></div><div class="ph-actions"><a class="btn btn-primary btn-sm" href="#/documents/intake">'+I('upload','ico-sm')+'Upload document</a></div></header><div class="pad"><div class="banner">'+I('info')+'<div><b>Current checks</b><p>File type and signature, basic structure, and SHA-256. Antivirus runs only when ClamAV is configured. Sensitive-data detection, prompt-injection scanning, and AI analysis are not enabled.</p></div></div><table class="tbl"><thead><tr><th>File</th><th>Antivirus status</th><th>SHA-256</th></tr></thead><tbody>'+(rows||'<tr><td colspan="3">No uploaded documents.</td></tr>')+'</tbody></table></div>';
+      var rows=D.docs.map(function(d){
+        var ocrDesc = (d.scan&&d.scan[1]?d.scan[1][2]:'Structure read');
+        return '<tr><td>'+esc(d.name)+'</td><td>'+esc(ocrDesc)+'</td><td class="mono">'+esc(d.sha||'')+'</td></tr>';
+      }).join('');
+      return '<header class="ph"><div><div class="kicker">Workspace</div><h1>Security <em>Center</em></h1><p class="sub">Integrity, structure, and text extraction checks.</p></div><div class="ph-actions"><a class="btn btn-primary btn-sm" href="#/documents/intake">'+I('upload','ico-sm')+'Upload document</a></div></header><div class="pad"><div class="banner">'+I('info')+'<div><b>Intake verification</b><p>File type, header signature, document structure, OCR text extraction, and SHA-256 integrity verification.</p></div></div><table class="tbl"><thead><tr><th>File</th><th>Structure / OCR status</th><th>SHA-256</th></tr></thead><tbody>'+(rows||'<tr><td colspan="3">No uploaded documents.</td></tr>')+'</tbody></table></div>';
     }
   };})();
 

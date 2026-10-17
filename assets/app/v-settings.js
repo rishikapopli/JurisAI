@@ -60,6 +60,7 @@
     },
     mount: function () {
       var pane = $('#st-pane'), tm;
+      if (!pane) return;
       function saved() { clearTimeout(tm); tm = setTimeout(function () { J.toast('Saved'); }, 200); }
       pane.addEventListener('change', function (e) {
         var t = e.target;

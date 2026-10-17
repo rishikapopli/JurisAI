@@ -4,22 +4,22 @@
   var J = window.J, D = J.data, esc = J.esc, I = J.icon, A = J.actions, $ = J.$, $$ = J.$$;
   var L = J.state.law = { doc: 'emp', c: '11.2', done: {} };
 
-  function mapped(docId) { return Object.keys(D.law).filter(function (k) { return k.split(':')[0] === docId; }).map(function (k) { return k.split(':')[1]; }); }
-  function docsWithLaw() { return D.docs.filter(function (d) { return d.content && d.sec === 'verified' && mapped(d.id).length; }); }
+  function mapped(docId) { var d = D.docById(docId); if (!d || !d.content) return []; return d.content.clauses.reduce((acc, c) => acc.concat(c.paras.map(p => p.ref)), []); }
+  function docsWithLaw() { return D.docs.filter(function (d) { return d.content && d.an === 'analyzed'; }); }
   function strengthChip(s) { return J.chip(s === 'Strong' ? 'chip-ok' : s === 'Moderate' ? 'chip-gold' : 'chip-warn', s + ' match'); }
   function typeChip(t) { return '<span class="chip">' + esc(t) + '</span>'; }
   function listHTML(d) {
     var jur = J.settings.jur;
     return mapped(d.id).map(function (ref) {
-      var info = J.refInfo(d.id + ':' + ref), e = D.law[d.id + ':' + ref], x = e[jur];
+      var info = J.refInfo(d.id + ':' + ref), e = D.law[d.id + ':' + ref] || {concept: 'Legal Concept'}, x = e[jur];
       return '<button class="ll-i' + (L.c === ref ? ' on' : '') + '" data-act="law-pick" data-c="' + ref + '"><span class="mono">§' + ref + '</span><span><b>' + esc(info.clause.title) + '</b><small>' + esc((x && !x.unavailable ? x.concept : e.concept)) + '</small></span><i class="' + (x && !x.unavailable ? 'cov cov-on' : 'cov') + '" title="' + (x && !x.unavailable ? 'Sources available' : 'No verified sources yet') + '"></i></button>';
     }).join('');
   }
   function chain(d, ref) {
     var jur = J.settings.jur, e = D.law[d.id + ':' + ref], x = e[jur], info = J.refInfo(d.id + ':' + ref), jn = D.jurs.filter(function (j) { return j.id === jur; })[0];
-    if (x.unavailable) {
+    if (x && x.unavailable) {
       var alts = D.jurs.filter(function (j) { return e[j.id] && !e[j.id].unavailable && j.id !== jur; });
-      return J.errorState('research', { text: 'JURISAI does not have verified legal sources for “' + e.concept.toLowerCase() + '” in ' + jn.name + ' yet, so it will not guess. You can see how another jurisdiction treats it, or continue with what the document itself says.', acts: alts.map(function (j) { return '<button class="btn btn-secondary btn-sm" data-act="law-jur" data-j="' + j.id + '">View ' + j.name + '</button>'; }).join('') + '<button class="btn btn-secondary btn-sm" data-go="analyze/' + d.id + '?ref=' + ref + '">Read the clause</button>' });
+      return J.errorState('research', { text: 'JURISAI does not have verified legal sources for “' + (e.concept ? e.concept.toLowerCase() : 'this concept') + '” in ' + jn.name + ' yet, so it will not guess. You can see how another jurisdiction treats it, or continue with what the document itself says.', acts: alts.map(function (j) { return '<button class="btn btn-secondary btn-sm" data-act="law-jur" data-j="' + j.id + '">View ' + j.name + '</button>'; }).join('') + '<button class="btn btn-secondary btn-sm" data-go="analyze/' + d.id + '?ref=' + ref + '">Read the clause</button>' });
     }
     var foreign = jur !== d.content.law.jur && d.content.law.jur;
     var step = function (n, label, body, last) { return '<li class="ch-s"><span class="ch-n">' + n + '</span><div class="ch-b"><div class="k">' + label + '</div>' + body + '</div></li>'; };
@@ -61,15 +61,40 @@
         '<section class="ld" id="ld">' + detail(d, L.c) + '</section></div>';
     },
     mount: function () {
-      var d = D.docById(L.doc); $('#law-doc').addEventListener('change', function (e) { L.doc = e.target.value; L.c = mapped(L.doc)[0]; J.render(true); });
-      reveal(d);
+      var sel = $('#law-doc');
+      if (sel) {
+        sel.addEventListener('change', function (e) {
+          L.doc = e.target.value;
+          var m = mapped(L.doc);
+          L.c = m.length ? m[0] : '';
+          J.render(true);
+        });
+      }
+      var d = D.docById(L.doc);
+      if (d) reveal(d);
     }
   };
   function reveal(d) {
     var key = d.id + ':' + L.c + ':' + J.settings.jur;
     if (L.done[key]) return;
     var h = $('#law-ls'); if (!h) return;
-    J.runSteps(h, 'Legal research', ['Identifying legal concept…', 'Checking jurisdiction…', 'Finding relevant sources…'], 420, function () { L.done[key] = true; if ($('#ld')) { $('#ld').innerHTML = detail(d, L.c); D.addEvent({ type: 'legal', title: 'Legal context researched', obj: '§' + L.c + ' ' + J.refInfo(d.id + ':' + L.c).clause.title + ' · ' + J.jurName(J.settings.jur), doc: d.id, go: 'law?doc=' + d.id + '&c=' + L.c, who: 'JURISAI', meta: 'Review required' }); } });
+    J.runSteps(h, 'Legal statutory lookup', ['Extracting clause keywords…', 'Querying legislation.gov.uk developer API…', 'Evaluating statutory compliance rules…'], 420, async function () {
+      try {
+        var res = await J.api('/api/documents/' + d.id + '/law?c=' + L.c + '&jur=' + J.settings.jur, { method: 'POST' });
+        if (res.ok) {
+          D.law[d.id + ':' + L.c] = D.law[d.id + ':' + L.c] || { concept: res.concept };
+          D.law[d.id + ':' + L.c][J.settings.jur] = res.law;
+          L.done[key] = true;
+          if ($('#ld')) {
+            $('#ld').innerHTML = detail(d, L.c);
+            D.addEvent({ type: 'legal', title: 'Legal context researched', obj: '§' + L.c + ' ' + J.refInfo(d.id + ':' + L.c).clause.title + ' · ' + J.jurName(J.settings.jur), doc: d.id, go: 'law?doc=' + d.id + '&c=' + L.c, who: 'JURISAI', meta: 'Review required' });
+          }
+        }
+      } catch (e) {
+        J.toast('Legal research failed: ' + e.message, 'warn');
+        h.innerHTML = J.errorState('research', { text: e.message });
+      }
+    });
   }
   A['law-pick'] = function (el) { L.c = el.dataset.c; var d = D.docById(L.doc); $('#ll').innerHTML = listHTML(d); $('#ld').innerHTML = detail(d, L.c); reveal(d); $('#ld').scrollTop = 0; };
   A['law-jur'] = function (el) { J.set('jur', el.dataset.j); J.toast('Jurisdiction set to ' + J.jurName(el.dataset.j)); J.render(true); };

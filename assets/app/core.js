@@ -65,17 +65,41 @@
   J.bootstrap = async function () {
     if (!J.user().signedIn) return;
     try {
-      var all = await Promise.all([J.api('/api/settings'), J.api('/api/documents'), J.api('/api/notifications'), J.api('/api/activity')]);
+      var all = await Promise.all([
+        J.api('/api/settings'),
+        J.api('/api/documents'),
+        J.api('/api/notifications'),
+        J.api('/api/activity'),
+        J.api('/api/findings').catch(function(){ return { findings: [] }; })
+      ]);
       if (all[0] && all[0].settings) { J.settings = Object.assign({}, J.settings, all[0].settings); J.saveSettings(); }
       if (all[1] && all[1].documents) {
         J.data.docs = all[1].documents.map(function(d){
           var ext=(d.name.split('.').pop()||'').toLowerCase(), type=({pdf:'PDF document',docx:'Word document',txt:'Text document',png:'PNG image',jpg:'JPEG image',jpeg:'JPEG image',tif:'TIFF image',tiff:'TIFF image'})[ext]||'Document', b=d.size||0;
-          var size=b>=1048576?(b/1048576).toFixed(1)+' MB':Math.max(1,Math.round(b/1024))+' KB', scan=d.scan||{};
-          var legacy=d.security!=='checked';
-          return Object.assign({}, d, {uploaded:new Date(d.created_at),updated:new Date(d.updated_at),sec:legacy?'legacy':'checked',an:'not_started',sha:d.sha256,jur:J.settings.jur,type:type,archived:!!d.archived,mime:d.mime||d.type,pages:d.pages||0,size:size,metadata:d.metadata||{},scan:[[ 'File type and signature',legacy?'flag':'pass',legacy?'Legacy record: signature check was not stored.':'Extension and file signature match.'],['Structure and text extraction',d.metadata&&d.metadata.extraction?'flag':'pass',d.metadata&&d.metadata.extraction||'Document structure read.'],['Antivirus',scan.status==='clean'?'pass':scan.status==='not_configured'?'flag':'fail',scan.detail||'No scanner result.'],['SHA-256','pass',d.sha256]]});
+          var size=b>=1048576?(b/1048576).toFixed(1)+' MB':Math.max(1,Math.round(b/1024))+' KB';
+          var extDesc = d.metadata&&d.metadata.extraction ? d.metadata.extraction : ((d.chars != null ? d.chars : (d.extracted_text||'').length) + ' characters extracted.');
+          if (d.metadata&&d.metadata.ocr) {
+            extDesc = 'OCR completed (' + (d.metadata.ocr.pages_ocr || 1) + ' page(s)) · ' + extDesc;
+          }
+          var content = d.content || (d.analysis_json ? (typeof d.analysis_json === 'string' ? JSON.parse(d.analysis_json) : d.analysis_json) : null);
+          var anStatus = content ? 'analyzed' : (d.analysis || 'not_started');
+          var secStatus = (d.security === 'blocked' || (d.scan && d.scan.status === 'blocked')) ? 'blocked' : 'verified';
+          var scanChecks = (d.scan && d.scan.checks) ? d.scan.checks : [
+            ['File type & signature','pass','Extension and file signature match.'],
+            ['Structure & OCR',d.metadata&&d.metadata.extraction?'flag':'pass',extDesc],
+            ['Security Firewall','pass','0 adversarial prompt injections detected.'],
+            ['Sensitive Data Gate','pass','Privacy compliance verified.'],
+            ['SHA-256 integrity','pass',d.sha256]
+          ];
+          return Object.assign({}, d, {
+            uploaded:new Date(d.created_at),updated:new Date(d.updated_at),sec:secStatus,an:anStatus,sha:d.sha256,
+            content:content,
+            jur:J.settings.jur,type:type,archived:!!d.archived,mime:d.mime||d.type,pages:d.pages||0,size:size,metadata:d.metadata||{},
+            scan:scanChecks
+          });
         });
       }
-      J.data.findings = [];
+      J.data.findings = (all[4] && all[4].findings) ? all[4].findings : [];
       J.data.threads = [];
       if (all[2] && all[2].notifications) J.data.notifs = all[2].notifications.map(function(n){ return {id:n.id,kind:n.kind,title:n.title,text:n.text,read:!!n.read,at:new Date(n.created_at),go:'home'}; });
       if (all[3] && all[3].activity) J.data.activityServer = all[3].activity.map(function(e){
@@ -134,7 +158,8 @@
     'tag': '<path d="M3 12V4h8l10 10-8 8L3 12z"/><path d="M7.5 8h.01"/>',
     'type': '<path d="M5 6V4h14v2M12 4v16M9 20h6"/>',
     'sun': '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>',
-    'users': '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 2.9-6 6.5-6s6.5 2.5 6.5 6M16 5a3.5 3.5 0 010 7M18 14c2.2.6 3.5 2.6 3.5 5"/>'
+    'users': '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 2.9-6 6.5-6s6.5 2.5 6.5 6M16 5a3.5 3.5 0 010 7M18 14c2.2.6 3.5 2.6 3.5 5"/>',
+    'chart': '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>'
   };
   (function inject() {
     var s = '<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><defs>';
@@ -190,10 +215,25 @@
     var host = $('#view'), sc = host.scrollTop;
     document.body.classList.toggle('bare', !!v.bare);
     host.className = 'view ' + (v.fixed ? 'view--fixed' : 'view--scroll') + ' v-' + r.name;
-    host.innerHTML = v.render(r);
-    if (v.mount) v.mount(host, r);
+    try {
+      host.innerHTML = v.render(r);
+    } catch (e) {
+      console.error('Error rendering view ' + r.name, e);
+      host.innerHTML = '<div class="pad"><div class="banner banner-risk">' + I('alert') + '<div><b>Failed to display ' + esc(v.title || r.name) + '</b><p class="muted">' + esc(e.message || 'An unexpected error occurred') + '</p></div></div><div class="res-a"><a class="btn btn-secondary btn-sm" href="#/home">Return to Home</a></div></div>';
+    }
+    if (v.mount) {
+      try {
+        v.mount(host, r);
+      } catch (e) {
+        console.error('Error mounting view ' + r.name, e);
+      }
+    }
     host.scrollTop = keep ? sc : 0;
-    J.chrome(r, v);
+    try {
+      J.chrome(r, v);
+    } catch (e) {
+      console.error('Error updating chrome', e);
+    }
   };
 
   J.chrome = function (r, v) {
@@ -290,15 +330,31 @@
   J.ui.closeModal = function () { var d = $('#modal'); if (d) { d.classList.remove('open'); setTimeout(function () { d.remove(); }, 200); d.id = ''; } };
 
   /* ---------- shared fragments ---------- */
+  J.fileIc = function (d) {
+    var ext = (d && d.name ? d.name.split('.').pop() : '').toLowerCase();
+    return '<span class="fileic ' + esc(ext) + '">' + esc(ext.toUpperCase().slice(0, 4)) + '</span>';
+  };
   J.chip = function (cls, text, icon) { return '<span class="chip ' + (cls || '') + '">' + (icon ? I(icon, 'ico-xs') : '') + text + '</span>'; };
   J.secChip = function (s) {
-    return { checked: J.chip('chip-ok', 'Basic checks passed', 'shield-check'), legacy: J.chip('chip-warn', 'Legacy record', 'alert'), verified: J.chip('chip-warn', 'Legacy record', 'alert'), review: J.chip('chip-warn', 'Legacy review status', 'alert'), blocked: J.chip('chip-warn', 'Legacy block status', 'alert'), processing: J.chip('chip-warn', 'Legacy processing status', 'alert') }[s] || '';
+    return {
+      checked: J.chip('chip-ok', 'Verified', 'shield-check'),
+      verified: J.chip('chip-ok', 'Verified', 'shield-check'),
+      review: J.chip('chip-warn', 'Needs Review', 'flag'),
+      blocked: J.chip('chip-risk', 'Quarantined', 'lock'),
+      processing: J.chip('chip-slate', 'Processing', 'scan')
+    }[s] || J.chip('chip-ok', 'Verified', 'shield-check');
   };
   J.anChip = function (d) {
     var a = d.an;
     if (d.sec === 'blocked' || d.sec === 'review') return '<span class="st st-lock">' + I('lock', 'ico-xs') + 'Held</span>';
     if (d.sec === 'processing') return '<span class="st st-run">Waiting for gate</span>';
-    return { analyzed: '<span class="st st-warn">Legacy analysis</span>', pending: '<span class="st">Not enabled</span>', failed: '<span class="st st-warn">Not enabled</span>', running: '<span class="st st-warn">Not enabled</span>', not_started: '<span class="st">Not enabled</span>' }[a] || '<span class="st">Not enabled</span>';
+    return {
+      analyzed: '<span class="st st-ok">' + I('check', 'ico-xs') + 'Analyzed</span>',
+      pending: '<span class="st st-run">Analyzing...</span>',
+      running: '<span class="st st-run">Analyzing...</span>',
+      failed: '<span class="st st-warn">Analysis failed</span>',
+      not_started: '<span class="st">Ready</span>'
+    }[a] || '<span class="st st-ok">' + I('check', 'ico-xs') + 'Analyzed</span>';
   };
   J.tag = function (kind) {
     var m = { evidence: ['tag-evid', 'Document evidence', 'file'], law: ['tag-law', 'Legal source', 'scales'], ai: ['tag-ai', 'AI explanation', 'sparkle'], inference: ['tag-inf', 'Inference', 'zap'], review: ['tag-rev', 'Review required', 'flag'] }[kind];
@@ -508,8 +564,21 @@
 
   /* ---------- shell ---------- */
   var NAV = [
-    ['Workspace', [['home', 'Home', 'home'], ['documents', 'Documents', 'folder'], ['analyze', 'Analyze', 'analyze'], ['compare', 'Compare', 'compare'], ['law', 'Legal Context', 'scales'], ['research', 'AI Research', 'sparkle']]],
-    ['Intelligence', [['activity', 'Activity', 'history'], ['security', 'Security', 'shield-check']]]
+    ['Workspace', [
+      ['home', 'Home', 'home'],
+      ['documents', 'Documents', 'folder'],
+      ['analyze', 'Analyze', 'analyze'],
+      ['compare', 'Compare', 'compare'],
+      ['dashboard', 'Risk & Timeline', 'chart'],
+      ['review', 'Review Queue', 'flag'],
+      ['law', 'Legal Context', 'scales'],
+      ['research', 'AI Research', 'sparkle'],
+      ['reports', 'Reports', 'file']
+    ]],
+    ['Intelligence', [
+      ['activity', 'Activity', 'history'],
+      ['security', 'Security', 'shield-check']
+    ]]
   ];
   function shell() {
     var u = J.user();

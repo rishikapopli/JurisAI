@@ -97,8 +97,21 @@
         '<div class="cmp-stage" id="cmp-stage">' + (C.ran ? resultsHTML() : (C.running || auto ? '<div class="pad cmp-load"><div id="cmp-ls"></div></div>' : '')) + '</div>';
     },
     mount: function () {
-      ['a', 'b', 'c'].forEach(function (k) { $('#cmp-' + k).addEventListener('change', function (e) { C[k] = e.target.value; C.ran = false; C.sel = null; $('#cmp-stage').innerHTML = '<div class="pad">' + J.empty({ icon: 'compare', title: 'Selection changed', text: 'Press Compare to analyse the selected documents.' }) + '</div>'; }); });
-      if (!C.ran) run();
+      ['a', 'b', 'c'].forEach(function (k) {
+        var el = $('#cmp-' + k);
+        if (el) {
+          el.addEventListener('change', function (e) {
+            C[k] = e.target.value;
+            C.ran = false;
+            C.sel = null;
+            var stg = $('#cmp-stage');
+            if (stg) {
+              stg.innerHTML = '<div class="pad">' + J.empty({ icon: 'compare', title: 'Selection changed', text: 'Press Compare to analyse the selected documents.' }) + '</div>';
+            }
+          });
+        }
+      });
+      if ($('#cmp-stage') && !C.ran) run();
     }
   };
   function run() {

@@ -114,7 +114,7 @@
     render: function (r) {
       if (!r.arg) { var last = J.state.lastDoc; if (last && D.docById(last)) { setTimeout(function(){location.replace('#/analyze/'+last);},0); return ''; } return docPicker(); }
       var d = D.docById(r.arg); if (!d) return J.empty({ icon: 'file-x', title: 'Document not found', text: 'It may have been removed from your library.', actions: '<a class="btn btn-primary btn-sm" href="#/documents">Back to documents</a>' });
-      if (!d.content) return '<header class="ph"><div><div class="kicker">Document viewer</div><h1>' + esc(d.name) + '</h1><p class="sub">This view contains the uploaded document content. Automated legal analysis is not enabled.</p></div></header><div class="pad">' + J.empty({icon:'file',title:'Open the real document',text:'JURISAI has not generated analysis, findings, or legal conclusions for this file.',actions:'<a class="btn btn-primary btn-sm" target="_blank" rel="noopener" href="/api/documents/'+encodeURIComponent(d.id)+'/view">View document</a> <a class="btn btn-secondary btn-sm" href="/api/documents/'+encodeURIComponent(d.id)+'/download">Download original</a>'}) + '</div>';
+      if (!d.content) return head(d) + '<div class="pad an-lock"><div class="banner">' + I('sparkle') + '<div><b>Legal AI Analysis is ready to run.</b><p class="muted">Extract clauses, identify obligations, verify statutory compliance, and screen for risks.</p></div></div><button class="btn btn-primary" data-act="an-generate" data-doc="' + d.id + '">' + I('sparkle', 'ico-sm') + ' Run Legal Analysis</button></div>';
       if (cur !== d.id) { S.tab = 'overview'; S.ref = null; cur = d.id; }
       J.state.lastDoc = d.id;
       if (d.sec !== 'verified') {
@@ -123,7 +123,7 @@
         return head(d) + '<div class="pad an-lock"><div class="gate-access locked">' + I('lock') + '<div><b>Legal AI access: LOCKED</b><small>Nothing enters Legal AI until it passes the security gate.</small></div></div>' + msg + J.checksHTML(d) + '</div>';
       }
       if (d.an === 'failed') return head(d) + '<div class="pad an-lock">' + J.errorState('analysis', { doc: d.id }) + '</div>';
-      if (d.an !== 'analyzed') return head(d) + '<div class="pad an-lock"><div class="banner">'+I('sparkle')+'<div><b>Advanced analysis is not enabled yet.</b><p class="muted">The document is stored securely. LLM-powered analysis will be connected in a later phase.</p></div></div></div>';
+      if (d.an !== 'analyzed') return head(d) + '<div class="pad an-lock"><div class="banner">'+I('sparkle')+'<div><b>Advanced analysis is ready to run.</b><p class="muted">Click below to run LLM-powered analysis on this document.</p></div></div><button class="btn btn-primary" data-act="an-generate" data-doc="'+d.id+'">Generate Analysis</button></div>';
       return head(d, actions(d)) +
         '<div class="an-mob"><button class="' + (S.pane === 'map' ? 'on' : '') + '" data-act="an-pane" data-p="map">Sections</button><button class="' + (S.pane === 'doc' ? 'on' : '') + '" data-act="an-pane" data-p="doc">Document</button><button class="' + (S.pane === 'ai' ? 'on' : '') + '" data-act="an-pane" data-p="ai">Analysis</button></div>' +
         '<div class="an-grid pane-' + S.pane + '"><nav class="an-map" id="an-map" aria-label="Document sections">' + sectionsHTML(d) + '</nav>' +
@@ -190,7 +190,51 @@
     var d = R();
     J.ui.menu(el, [{ label: 'Compare with another document', icon: 'compare', fn: function () { J.go('compare?a=' + d.id); } }, { label: 'Open legal context', icon: 'scales', fn: function () { J.go('law?doc=' + d.id); } }, { label: 'Ask JURISAI about this document', icon: 'sparkle', fn: function () { J.go('research?doc=' + d.id); } }, { label: 'Generate report', icon: 'file', fn: function () { J.go('reports?doc=' + d.id); } }, { divider: true }, { label: 'Security details', icon: 'shield-check', fn: function () { A['doc-open']({ dataset: { id: d.id } }); } }], { align: 'right', width: 280 });
   };
-  A['retry-analysis'] = function (el) {
-    var d = D.docById(el.dataset.doc); d.content = d.content || D.msaContent; d.an = 'pending'; J.toast('Retrying with OCR'); J.render();
+  A['retry-analysis'] = async function (el) {
+    var id = el.dataset.doc;
+    if (!id) {
+      J.toast('No document specified for OCR', 'warn');
+      return;
+    }
+    el.disabled = true;
+    el.innerHTML = I('refresh', 'pulse') + ' Queuing OCR…';
+    try {
+      var res = await J.api('/api/documents/' + encodeURIComponent(id) + '/ocr', { method: 'POST' });
+      J.toast('Document queued for OCR processing', 'ok');
+      var doc = D.docById(id);
+      if (doc && res.document) {
+        Object.assign(doc, res.document);
+      }
+      setTimeout(function () {
+        J.go('documents');
+      }, 500);
+    } catch (e) {
+      J.toast(e.message || 'OCR request failed', 'warn');
+      el.disabled = false;
+      el.innerHTML = I('refresh', 'ico-sm') + ' Retry with OCR';
+    }
+  };
+  A['an-generate'] = async function (el) {
+    var d = D.docById(el.dataset.doc);
+    el.disabled = true;
+    el.innerHTML = I('refresh', 'pulse') + ' Analyzing...';
+    try {
+      var res = await J.api('/api/documents/' + d.id + '/analyze', { method: 'POST' });
+      if (res.ok) {
+        d.content = res.content;
+        d.an = 'analyzed';
+        d.sec = 'verified';
+        J.toast('Analysis generated successfully', 'ok');
+        try {
+          var fRes = await J.api('/api/findings');
+          if (fRes.ok && fRes.findings) D.findings = fRes.findings;
+        } catch (e) {}
+        J.render();
+      }
+    } catch (e) {
+      J.toast('Analysis failed: ' + e.message, 'warn');
+      el.disabled = false;
+      el.innerHTML = I('sparkle', 'ico-sm') + ' Run Legal Analysis';
+    }
   };
 })();

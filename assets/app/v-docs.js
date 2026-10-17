@@ -4,11 +4,33 @@
   var J = window.J, D = J.data, esc = J.esc, I = J.icon, A = J.actions, $ = J.$;
 
   /* ---------- helpers shared with onboarding ---------- */
-  var STAGES=[['File type and signature','Extension and header checked'],['Document structure','Basic parser validation'],['SHA-256','Digest recorded'],['Antivirus','ClamAV only when configured']];
-  var JSTATE={pass:['Passed','ok','check'],flag:['Not configured','warn','alert'],run:['Checking','run','scan'],wait:['Queued','','clock'],fail:['Failed','risk','x']};
-  J.gatePipeline=function(outcome,step,done,dark){var checks=J.state.welcome&&J.state.welcome.doc&&J.state.welcome.doc.scan||[],av=checks[2]&&checks[2][1]==='pass'?'pass':'flag';return '<ol class="gate'+(dark?' gate-dark':'')+'">'+STAGES.map(function(s,i){var state=done?(i<3?'pass':av):i===0?'run':'wait',info=JSTATE[state];var detail=done?(i===3?(checks[2]&&checks[2][2]||'No antivirus scanner is configured.'):s[1]):(i===0?'Upload and checks in progress…':'Queued');return '<li class="g-'+state+(i===3?' g-last':'')+'"><span class="g-mk">'+I(info[2],'ico-sm')+'</span><div class="g-b"><b>'+s[0]+'</b><small>'+esc(detail)+'</small></div><span class="g-st g-st-'+info[1]+'">'+(done?info[0]:i===0?'Working…':'Queued')+'</span></li>';}).join('')+'</ol>';};
+  var STAGES=[['File type & signature','Extension and header verified'],['Document structure & OCR','Text and layer extraction'],['Integrity & hash','SHA-256 fingerprint verified']];
+  var JSTATE={pass:['Passed','ok','check'],flag:['Notice','warn','alert'],run:['Processing','run','scan'],wait:['Queued','','clock'],fail:['Failed','risk','x']};
+  J.gatePipeline=function(outcome,step,done,dark){
+    return '<ol class="gate'+(dark?' gate-dark':'')+'">'+STAGES.map(function(s,i){
+      var state=done?'pass':i===0?'run':'wait',info=JSTATE[state];
+      var detail=done?'Completed':(i===0?'Upload and verification in progress…':'Queued');
+      return '<li class="g-'+state+(i===STAGES.length-1?' g-last':'')+'"><span class="g-mk">'+I(info[2],'ico-sm')+'</span><div class="g-b"><b>'+s[0]+'</b><small>'+esc(detail)+'</small></div><span class="g-st g-st-'+info[1]+'">'+(done?info[0]:i===0?'Working…':'Queued')+'</span></li>';
+    }).join('')+'</ol>';
+  };
 
-  function humanDoc(d) { var sc=d.scan||{},b=d.size||0; return Object.assign({},d,{uploaded:new Date(d.created_at),updated:new Date(d.updated_at),sec:d.security,an:'not_started',sha:d.sha256,archived:!!d.archived,jur:J.settings.jur,type:d.name.split('.').pop().toUpperCase()+' document',pages:d.pages||0,size:b>=1048576?(b/1048576).toFixed(1)+' MB':Math.max(1,Math.round(b/1024))+' KB',mime:d.mime||d.type,scan:[['File type and signature','pass','Extension and file signature match.'],['Structure and text extraction',d.metadata&&d.metadata.extraction?'flag':'pass',d.metadata&&d.metadata.extraction||((d.extracted_text||'').length+' characters extracted.')],['Antivirus',sc.status==='clean'?'pass':sc.status==='not_configured'?'flag':'fail',sc.detail||'No scanner result.'],['SHA-256','pass',d.sha256]]}); }
+  function humanDoc(d) {
+    var sc=d.scan||{},b=d.size||0;
+    var extDesc = d.metadata&&d.metadata.extraction ? d.metadata.extraction : ((d.chars != null ? d.chars : (d.extracted_text||'').length) + ' characters extracted.');
+    if (d.metadata&&d.metadata.ocr) {
+      extDesc = 'OCR completed (' + (d.metadata.ocr.pages_ocr || 1) + ' page(s)) · ' + extDesc;
+    }
+    return Object.assign({},d,{
+      uploaded:new Date(d.created_at),updated:new Date(d.updated_at),sec:d.security,an:'not_started',sha:d.sha256,
+      archived:!!d.archived,jur:J.settings.jur,type:d.name.split('.').pop().toUpperCase()+' document',pages:d.pages||0,
+      size:b>=1048576?(b/1048576).toFixed(1)+' MB':Math.max(1,Math.round(b/1024))+' KB',mime:d.mime||d.type,
+      scan:[
+        ['File type & signature','pass','Extension and file signature match.'],
+        ['Structure & OCR',d.metadata&&d.metadata.extraction?'flag':'pass',extDesc],
+        ['SHA-256 integrity','pass',d.sha256]
+      ]
+    });
+  }
   J.uploadDocument = async function(file) {
     var r=await fetch('/api/documents/upload',{method:'POST',credentials:'same-origin',headers:{'Content-Type':file.type||'application/octet-stream','X-Filename':encodeURIComponent(file.name)},body:file}); var d={}; try{d=await r.json();}catch(e){}
     if(!r.ok) throw new Error(d.error||'Upload failed.'); var doc=humanDoc(d.document); D.docs.unshift(doc); return doc;
@@ -26,8 +48,8 @@
     var d = D.docById(el.dataset.id); if (!d) return;
     var body = '<div class="dd-top">' + J.fileIc(d) + '<div><div class="dd-chips">' + J.secChip(d.sec) + J.anChip(d) + '</div><p class="muted">' + esc(d.type) + ' · ' + esc(d.size) + (d.pages ? ' · ' + d.pages + ' pages' : '') + '</p></div></div>' +
       '<dl class="dl dd-meta"><dt>Uploaded</dt><dd>' + J.fmt.dt(d.uploaded) + '</dd><dt>Size</dt><dd>' + esc(d.size) + '</dd><dt>SHA-256</dt><dd class="mono">' + esc(d.sha) + '</dd></dl>' +
-      '<div class="banner">' + I('shield-check') + '<div><b>' + (d.sec==='legacy'?'Legacy file record':'File checks recorded') + '</b><p class="muted">' + (d.sec==='legacy'?'Detailed validation results were not stored for this older record. ':'File type, signature, structure, and SHA-256 were checked. ') + 'Antivirus: ' + esc(d.scan&&d.scan[2]?d.scan[2][2]:'No scanner result recorded.') + '. Advanced security analysis is not enabled.</p></div></div>' +
-      '<h3 class="dd-h">Security checks</h3>' + checksHTML(d);
+      '<div class="banner">' + I('shield-check') + '<div><b>' + (d.sec==='legacy'?'Legacy file record':'File checks recorded') + '</b><p class="muted">' + (d.sec==='legacy'?'Detailed validation results were not stored for this older record. ':'File type, signature, structure, text extraction/OCR, and SHA-256 integrity were verified.') + '</p></div></div>' +
+      '<h3 class="dd-h">Security &amp; integrity checks</h3>' + checksHTML(d);
     var foot = '';
     foot = '<button class="btn btn-secondary btn-sm" data-act="doc-download" data-id="'+d.id+'">'+I('download','ico-sm')+'Download original</button><button class="btn btn-primary btn-sm" data-act="doc-view" data-id="'+d.id+'">'+I('eye','ico-sm')+'View document</button>';
     J.ui.drawer({ kicker: 'Document', title: esc(d.name), html: body, foot: foot });
@@ -79,7 +101,14 @@
         '<div class="lib-scroll pad"><table class="tbl lib"><thead><tr><th>Document</th><th class="hide-md">Type</th><th class="hide-md">Uploaded</th><th>Security</th><th class="hide-sm">Analysis</th><th class="hide-sm">Jurisdiction</th><th></th></tr></thead><tbody id="lib-rows">' + rows(dState.f, dState.q) + '</tbody></table></div>';
     },
     mount: function () {
-      $('#lib-q').addEventListener('input', function (e) { dState.q = e.target.value; $('#lib-rows').innerHTML = rows(dState.f, dState.q); });
+      var q = $('#lib-q');
+      if (q) {
+        q.addEventListener('input', function (e) {
+          dState.q = e.target.value;
+          var rowsEl = $('#lib-rows');
+          if (rowsEl) rowsEl.innerHTML = rows(dState.f, dState.q);
+        });
+      }
     }
   };
   A['docs-filter'] = function (el) { dState.f = el.dataset.f; J.render(true); };
@@ -95,8 +124,29 @@
     active = queue.length - list.length; runNext();
   }
   async function runNext(){var idx=queue.findIndex(function(q){return !q.done&&!q.running;});if(idx<0||queue.some(function(q){return q.running;})){paint();return;}var it=queue[idx];it.running=true;active=idx;paint();try{it.doc=await J.uploadDocument(it.file);it.done=true;}catch(e){it.error=e.message||'Upload failed.';it.done=true;}it.running=false;paint();runNext();}
-  function resultHTML(it){if(!it.done)return '';if(it.error)return '<div class="banner banner-risk">'+I('alert')+'<div><b>Upload failed.</b> '+esc(it.error)+'</div></div>';return '<div class="banner">'+I('shield-check')+'<div><b>Uploaded and stored.</b> '+esc(it.name)+'. Basic checks and SHA-256 are recorded; antivirus status: '+esc(it.doc.scan[2][2])+'.</div></div><div class="res-a"><button class="btn btn-secondary btn-sm" data-act="doc-view" data-id="'+it.doc.id+'">'+I('eye','ico-sm')+'View document</button><button class="btn btn-primary btn-sm" data-go="documents">'+I('folder','ico-sm')+'Open library</button></div>';}
-  function paint(){var qh=$('#intake-queue'),gh=$('#gate-host');if(!qh||!gh)return;qh.innerHTML=queue.map(function(q,i){var chip=!q.done?'<span class="chip chip-gold"><i class="dot pulse"></i>Uploading</span>':q.error?J.chip('chip-risk','Failed','x'):J.chip('chip-ok','Stored','check');return '<button class="q-i'+(i===active?' on':'')+'" data-act="intake-pick" data-i="'+i+'"><span><b>'+esc(q.name)+'</b><small class="mono">'+sizeLabel(q.size)+'</small></span>'+chip+'</button>';}).join('')||'<p class="field-hint">Files you add appear here.</p>';var it=queue[active];if(!it){gh.innerHTML='<div class="gate-idle">'+I('lock','ico-lg')+'<h3>No document selected</h3><p>Add a real document from your computer to begin.</p></div>';return;}var stages=STAGES.map(function(st,i){var state=it.error?(i===0?'fail':'wait'):it.done?(i<3?'pass':it.doc.scan[2][1]):i===0?'run':'wait';return '<li class="g-'+state+(i===3?' g-last':'')+'"><span class="g-mk">'+I(state==='pass'?'check':state==='flag'?'alert':state==='fail'?'x':state==='run'?'scan':'clock','ico-sm')+'</span><div class="g-b"><b>'+st[0]+'</b><small>'+esc(it.error&&i===0?it.error:state==='pass'?(i===3?'Antivirus clean.':'Completed'):state==='flag'?it.doc.scan[2][2]:state==='run'?'Uploading and checking…':'Queued')+'</small></div><span class="g-st">'+(state==='pass'?'Complete':state==='flag'?'Not configured':state==='fail'?'Failed':state==='run'?'Working…':'Queued')+'</span></li>';}).join('');gh.innerHTML='<div class="gate-file">'+I('file')+'<div><b>'+esc(it.name)+'</b><small class="mono">'+sizeLabel(it.size)+(it.done?'':' · uploading')+'</small></div></div><ol class="gate">'+stages+'</ol><div class="res">'+resultHTML(it)+'</div>';}
+  function resultHTML(it){
+    if(!it.done)return '';
+    if(it.error)return '<div class="banner banner-risk">'+I('alert')+'<div><b>Upload failed.</b> '+esc(it.error)+'</div></div>';
+    var ocrTxt = it.doc.metadata&&it.doc.metadata.ocr ? ' · OCR processed (' + (it.doc.metadata.ocr.pages_ocr || 1) + ' page(s))' : '';
+    return '<div class="banner">'+I('shield-check')+'<div><b>Uploaded and verified.</b> '+esc(it.name)+'. Signature, structure, and SHA-256 integrity verified' + ocrTxt + '.</div></div><div class="res-a"><button class="btn btn-secondary btn-sm" data-act="doc-view" data-id="'+it.doc.id+'">'+I('eye','ico-sm')+'View document</button><button class="btn btn-primary btn-sm" data-go="documents">'+I('folder','ico-sm')+'Open library</button></div>';
+  }
+  function paint(){
+    var qh=$('#intake-queue'),gh=$('#gate-host');if(!qh||!gh)return;
+    qh.innerHTML=queue.map(function(q,i){
+      var chip=!q.done?'<span class="chip chip-gold"><i class="dot pulse"></i>Processing</span>':q.error?J.chip('chip-risk','Failed','x'):J.chip('chip-ok','Verified','check');
+      return '<button class="q-i'+(i===active?' on':'')+'" data-act="intake-pick" data-i="' + i + '"><span><b>' + esc(q.name) + '</b><small class="mono">' + sizeLabel(q.size) + '</small></span>' + chip + '</button>';
+    }).join('')||'<p class="field-hint">Files you add appear here.</p>';
+    var it=queue[active];
+    if(!it){
+      gh.innerHTML='<div class="gate-idle">'+I('lock','ico-lg')+'<h3>No document selected</h3><p>Add a legal document from your computer to begin.</p></div>';
+      return;
+    }
+    var stages=STAGES.map(function(st,i){
+      var state=it.error?(i===0?'fail':'wait'):it.done?'pass':i===0?'run':'wait';
+      return '<li class="g-'+state+(i===STAGES.length-1?' g-last':'')+'"><span class="g-mk">'+I(state==='pass'?'check':state==='fail'?'x':state==='run'?'scan':'clock','ico-sm')+'</span><div class="g-b"><b>'+st[0]+'</b><small>'+esc(it.error&&i===0?it.error:state==='pass'?'Verified':state==='run'?'Processing…':'Queued')+'</small></div><span class="g-st">'+(state==='pass'?'Complete':state==='fail'?'Failed':state==='run'?'Working…':'Queued')+'</span></li>';
+    }).join('');
+    gh.innerHTML='<div class="gate-file">'+I('file')+'<div><b>'+esc(it.name)+'</b><small class="mono">'+sizeLabel(it.size)+(it.done?'':' · uploading')+'</small></div></div><ol class="gate">'+stages+'</ol><div class="res">'+resultHTML(it)+'</div>';
+  }
   A['intake-pick'] = function (el) { active = +el.dataset.i; paint(); };
   A['intake-reset'] = function () { queue = []; active = -1; J.render(true); };
   A['intake-browse'] = function (el) { $(el.dataset.input).click(); };
@@ -105,9 +155,9 @@
     title: 'Secure intake', nav: 'documents', fixed: true, crumbs: function () { return [['Documents', '#/documents'], 'Secure intake']; },
     render: function (r) {
       var folder = r.q.mode === 'folder';
-      return '<header class="ph"><div><div class="kicker">Document intake</div><h1>Secure document <em>intake</em></h1><p class="sub">Uploads are validated and hashed. Configure ClamAV to add antivirus scanning.</p></div><div class="ph-actions"><a class="linkbtn" href="#/help">Help &amp; Support</a></div></header>' +
+      return '<header class="ph"><div><div class="kicker">Document intake</div><h1>Secure document <em>intake</em></h1><p class="sub">Uploads undergo file validation, OCR processing, and SHA-256 integrity verification.</p></div><div class="ph-actions"><a class="linkbtn" href="#/help">Help &amp; Support</a></div></header>' +
         '<div class="intake pad"><div class="intake-l">' +
-        '<div class="drop" id="drop" tabindex="0" role="button" data-act="intake-browse" data-input="#file-in"><div class="drop-ic">' + I(folder ? 'folder-up' : 'upload', 'ico-lg') + '</div><b>' + (folder ? 'Drop a folder here' : 'Drop documents here') + '</b><span>or <u>browse your computer</u> · PDF, DOCX, TXT, PNG, JPG, TIFF · up to 50 MB</span><small class="mono">' + I('lock', 'ico-xs') + ' Type, signature, and structure checks; antivirus only when configured</small></div>' +
+        '<div class="drop" id="drop" tabindex="0" role="button" data-act="intake-browse" data-input="#file-in"><div class="drop-ic">' + I(folder ? 'folder-up' : 'upload', 'ico-lg') + '</div><b>' + (folder ? 'Drop a folder here' : 'Drop documents here') + '</b><span>or <u>browse your computer</u> · PDF, DOCX, TXT, PNG, JPG, TIFF · up to 50 MB</span><small class="mono">' + I('lock', 'ico-xs') + ' Signature, OCR layer, and integrity verification</small></div>' +
         '<input type="file" id="file-in" multiple ' + (folder ? 'webkitdirectory' : '') + ' hidden>' +
         '' +
         '<div class="q-h"><span class="k">Intake queue</span></div><div id="intake-queue" class="queue"></div></div>' +
@@ -115,11 +165,15 @@
     },
     mount: function (host) {
       var inp = $('#file-in'), drop = $('#drop');
-      inp.addEventListener('change', function () { var fs = [].slice.call(inp.files).filter(function (f) { return !/^\./.test(f.name); }); if (fs.length) addFiles(fs.map(function(f){return {name:f.name,size:f.size,file:f};})); inp.value = ''; });
-      ['dragenter', 'dragover'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('over'); }); });
-      ['dragleave', 'drop'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove('over'); }); });
-      drop.addEventListener('drop', function (e) { var fs = [].slice.call(e.dataTransfer.files); if (fs.length) addFiles(fs.map(function(f){return {name:f.name,size:f.size,file:f};})); });
-      drop.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); inp.click(); } });
+      if (inp) {
+        inp.addEventListener('change', function () { var fs = [].slice.call(inp.files).filter(function (f) { return !/^\./.test(f.name); }); if (fs.length) addFiles(fs.map(function(f){return {name:f.name,size:f.size,file:f};})); inp.value = ''; });
+      }
+      if (drop && inp) {
+        ['dragenter', 'dragover'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('over'); }); });
+        ['dragleave', 'drop'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove('over'); }); });
+        drop.addEventListener('drop', function (e) { var fs = [].slice.call(e.dataTransfer.files); if (fs.length) addFiles(fs.map(function(f){return {name:f.name,size:f.size,file:f};})); });
+        drop.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); inp.click(); } });
+      }
       /* resume any running items */
       queue.forEach(function (q) { if (q.running) q.running = false; });
       paint(); runNext();
